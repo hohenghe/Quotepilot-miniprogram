@@ -44,7 +44,7 @@
     <view class="form">
       <input class="input" type="text" placeholder="邮箱" value="{{regEmail}}" data-field="regEmail" bindinput="handleInput" />
       <view class="pwd-row">
-        <input class="input" password="{{!showRegPwd}}" placeholder="密码（至少 6 位）" value="{{regPassword}}" data-field="regPassword" bindinput="handleInput" />
+        <input class="input" password="{{!showRegPwd}}" placeholder="密码（至少 8 位）" value="{{regPassword}}" data-field="regPassword" bindinput="handleInput" />
         <text class="pwd-toggle" bindtap="toggleRegPwd">{{showRegPwd ? '隐藏' : '显示'}}</text>
       </view>
       <view class="pwd-row">

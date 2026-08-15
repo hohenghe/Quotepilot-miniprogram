@@ -201,8 +201,8 @@ Page({
       this.setData({ error: '请填写所有必填项' })
       return false
     }
-    if (regPassword.length < 6) {
-      this.setData({ error: '密码至少 6 位' })
+    if (regPassword.length < 8) {
+      this.setData({ error: '密码至少 8 位' })
       return false
     }
     if (regPassword !== regConfirm) {

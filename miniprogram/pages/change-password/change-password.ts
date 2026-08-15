@@ -60,8 +60,8 @@ Page({
       wx.showToast({ title: '请输入新密码', icon: 'none' })
       return
     }
-    if (newPassword.length < 6) {
-      wx.showToast({ title: '新密码至少 6 位', icon: 'none' })
+    if (newPassword.length < 8) {
+      wx.showToast({ title: '新密码至少 8 位', icon: 'none' })
       return
     }
     if (newPassword !== confirmPassword) {
