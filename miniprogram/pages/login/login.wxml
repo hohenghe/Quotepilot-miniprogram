@@ -19,7 +19,10 @@
   <block wx:elif="{{mode === 'accountLogin'}}">
     <view class="form">
       <input class="input" placeholder="邮箱 / 会员号" value="{{identifier}}" data-field="identifier" bindinput="handleInput" />
-      <input class="input" password placeholder="密码" value="{{password}}" data-field="password" bindinput="handleInput" />
+      <view class="pwd-row">
+        <input class="input" password="{{!showPwd}}" placeholder="密码" value="{{password}}" data-field="password" bindinput="handleInput" />
+        <text class="pwd-toggle" bindtap="togglePwd">{{showPwd ? '隐藏' : '显示'}}</text>
+      </view>
       <button class="btn primary" bindtap="handleAccountLogin" loading="{{loading}}" disabled="{{loading}}">登录</button>
       <button class="btn text" bindtap="goHome">返回</button>
     </view>
@@ -28,7 +31,10 @@
   <block wx:elif="{{mode === 'bind'}}">
     <view class="form">
       <input class="input" placeholder="邮箱 / 会员号" value="{{identifier}}" data-field="identifier" bindinput="handleInput" />
-      <input class="input" password placeholder="密码" value="{{password}}" data-field="password" bindinput="handleInput" />
+      <view class="pwd-row">
+        <input class="input" password="{{!showPwd}}" placeholder="密码" value="{{password}}" data-field="password" bindinput="handleInput" />
+        <text class="pwd-toggle" bindtap="togglePwd">{{showPwd ? '隐藏' : '显示'}}</text>
+      </view>
       <button class="btn primary" bindtap="handleBind" loading="{{loading}}" disabled="{{loading}}">绑定并登录</button>
       <button class="btn text" bindtap="goWechatUnbound">返回</button>
     </view>
@@ -37,8 +43,14 @@
   <block wx:elif="{{mode === 'register' || mode === 'wechatRegister'}}">
     <view class="form">
       <input class="input" type="text" placeholder="邮箱" value="{{regEmail}}" data-field="regEmail" bindinput="handleInput" />
-      <input class="input" password placeholder="密码（至少 6 位）" value="{{regPassword}}" data-field="regPassword" bindinput="handleInput" />
-      <input class="input" password placeholder="确认密码" value="{{regConfirm}}" data-field="regConfirm" bindinput="handleInput" />
+      <view class="pwd-row">
+        <input class="input" password="{{!showRegPwd}}" placeholder="密码（至少 6 位）" value="{{regPassword}}" data-field="regPassword" bindinput="handleInput" />
+        <text class="pwd-toggle" bindtap="toggleRegPwd">{{showRegPwd ? '隐藏' : '显示'}}</text>
+      </view>
+      <view class="pwd-row">
+        <input class="input" password="{{!showRegConfirm}}" placeholder="确认密码" value="{{regConfirm}}" data-field="regConfirm" bindinput="handleInput" />
+        <text class="pwd-toggle" bindtap="toggleRegConfirm">{{showRegConfirm ? '隐藏' : '显示'}}</text>
+      </view>
       <input class="input" placeholder="公司名称" value="{{regName}}" data-field="regName" bindinput="handleInput" />
       <input class="input" type="text" placeholder="电话" value="{{regPhone}}" data-field="regPhone" bindinput="handleInput" />
       <picker mode="selector" range="{{countries}}" value="{{countryIndex}}" bindchange="handleCountryChange">

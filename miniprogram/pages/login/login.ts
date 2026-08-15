@@ -55,6 +55,9 @@ Page({
     resendBtnText: '重新发送验证邮件',
     identifier: '',
     password: '',
+    showPwd: false,
+    showRegPwd: false,
+    showRegConfirm: false,
     regEmail: '',
     regPassword: '',
     regConfirm: '',
@@ -127,6 +130,18 @@ Page({
   handleInput(e: WechatMiniprogram.Input) {
     const field = e.currentTarget.dataset.field as string
     this.setData({ [field]: e.detail.value } as any)
+  },
+
+  togglePwd() {
+    this.setData({ showPwd: !this.data.showPwd })
+  },
+
+  toggleRegPwd() {
+    this.setData({ showRegPwd: !this.data.showRegPwd })
+  },
+
+  toggleRegConfirm() {
+    this.setData({ showRegConfirm: !this.data.showRegConfirm })
   },
 
   handleCountryChange(e: WechatMiniprogram.PickerChange) {

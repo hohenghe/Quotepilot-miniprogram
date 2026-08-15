@@ -76,6 +76,29 @@
   color: $color-text;
 }
 
+.pwd-row {
+  display: flex;
+  align-items: center;
+  height: $input-h;
+  background: $color-surface;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-md;
+  margin-bottom: $space-lg;
+  padding-right: 24rpx;
+}
+
+.pwd-row .input {
+  border: none;
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.pwd-toggle {
+  font-size: $fs-md;
+  color: $color-primary;
+  flex-shrink: 0;
+}
+
 .hint {
   margin-top: 32rpx;
   font-size: $fs-md;
