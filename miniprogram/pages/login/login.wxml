@@ -24,6 +24,7 @@
         <text class="pwd-toggle" bindtap="togglePwd">{{showPwd ? '隐藏' : '显示'}}</text>
       </view>
       <button class="btn primary" bindtap="handleAccountLogin" loading="{{loading}}" disabled="{{loading}}">登录</button>
+      <button class="btn text" bindtap="goForgotPassword">忘记密码？</button>
       <button class="btn text" bindtap="goHome">返回</button>
     </view>
   </block>

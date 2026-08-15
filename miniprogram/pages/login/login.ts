@@ -96,6 +96,10 @@ Page({
     this.setData({ mode: 'accountLogin', error: '' })
   },
 
+  goForgotPassword() {
+    wx.navigateTo({ url: '/pages/forgot-password/forgot-password' })
+  },
+
   goRegister() {
     this.setData({ mode: 'register', error: '' })
   },

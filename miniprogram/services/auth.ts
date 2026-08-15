@@ -79,3 +79,17 @@ export function changePassword(currentPassword: string, newPassword: string): Pr
     data: { current_password: currentPassword, new_password: newPassword },
   })
 }
+
+export function forgotPassword(email: string): Promise<RegisterResult> {
+  return request<RegisterResult>('/api/auth/forgot-password', {
+    method: 'POST',
+    data: { email },
+  })
+}
+
+export function resetPassword(token: string, newPassword: string): Promise<RegisterResult> {
+  return request<RegisterResult>('/api/auth/reset-password', {
+    method: 'POST',
+    data: { token, new_password: newPassword },
+  })
+}
