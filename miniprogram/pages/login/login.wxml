@@ -1,0 +1,71 @@
+<view class="page">
+  <view class="brand">
+    <text class="title">ZherMai Seller</text>
+  </view>
+
+  <block wx:if="{{mode === 'home'}}">
+    <button class="btn wechat" bindtap="handleWechatLogin" loading="{{loading}}" disabled="{{loading}}">微信登录</button>
+    <button class="btn secondary" bindtap="goAccountLogin">账号登录</button>
+    <button class="btn text" bindtap="goRegister">注册账号</button>
+  </block>
+
+  <block wx:elif="{{mode === 'wechatUnbound'}}">
+    <text class="hint">该微信尚未绑定 Seller 账号</text>
+    <button class="btn primary" bindtap="goWechatBind">绑定已有账号</button>
+    <button class="btn secondary" bindtap="goWechatRegister">注册新账号</button>
+    <button class="btn text" bindtap="goHome">返回</button>
+  </block>
+
+  <block wx:elif="{{mode === 'accountLogin'}}">
+    <view class="form">
+      <input class="input" placeholder="邮箱 / 会员号" value="{{identifier}}" data-field="identifier" bindinput="handleInput" />
+      <input class="input" password placeholder="密码" value="{{password}}" data-field="password" bindinput="handleInput" />
+      <button class="btn primary" bindtap="handleAccountLogin" loading="{{loading}}" disabled="{{loading}}">登录</button>
+      <button class="btn text" bindtap="goHome">返回</button>
+    </view>
+  </block>
+
+  <block wx:elif="{{mode === 'bind'}}">
+    <view class="form">
+      <input class="input" placeholder="邮箱 / 会员号" value="{{identifier}}" data-field="identifier" bindinput="handleInput" />
+      <input class="input" password placeholder="密码" value="{{password}}" data-field="password" bindinput="handleInput" />
+      <button class="btn primary" bindtap="handleBind" loading="{{loading}}" disabled="{{loading}}">绑定并登录</button>
+      <button class="btn text" bindtap="goWechatUnbound">返回</button>
+    </view>
+  </block>
+
+  <block wx:elif="{{mode === 'register' || mode === 'wechatRegister'}}">
+    <view class="form">
+      <input class="input" type="text" placeholder="邮箱" value="{{regEmail}}" data-field="regEmail" bindinput="handleInput" />
+      <input class="input" password placeholder="密码（至少 6 位）" value="{{regPassword}}" data-field="regPassword" bindinput="handleInput" />
+      <input class="input" password placeholder="确认密码" value="{{regConfirm}}" data-field="regConfirm" bindinput="handleInput" />
+      <input class="input" placeholder="公司名称" value="{{regName}}" data-field="regName" bindinput="handleInput" />
+      <input class="input" type="text" placeholder="电话" value="{{regPhone}}" data-field="regPhone" bindinput="handleInput" />
+      <picker mode="selector" range="{{countries}}" value="{{countryIndex}}" bindchange="handleCountryChange">
+        <view class="input picker">{{countries[countryIndex]}}</view>
+      </picker>
+      <button wx:if="{{mode === 'register'}}" class="btn primary" bindtap="handleRegister" loading="{{loading}}" disabled="{{loading}}">注册</button>
+      <button wx:else class="btn primary" bindtap="handleWechatRegister" loading="{{loading}}" disabled="{{loading}}">注册并绑定微信</button>
+      <button class="btn text" bindtap="goHome">返回</button>
+    </view>
+  </block>
+
+  <block wx:elif="{{mode === 'registered'}}">
+    <view class="form center">
+      <text class="success-title">注册成功</text>
+      <text class="hint">验证邮件已发送到</text>
+      <text class="registered-email">{{registeredEmail}}</text>
+      <text class="hint">请先完成邮箱验证后再登录</text>
+      <text wx:if="{{resendMessage}}" class="resend-message">{{resendMessage}}</text>
+      <button
+        class="btn primary"
+        bindtap="handleResendVerification"
+        loading="{{resending}}"
+        disabled="{{resending || resendCooldown > 0}}"
+      >{{resendBtnText}}</button>
+      <button class="btn text" bindtap="goHome">返回登录</button>
+    </view>
+  </block>
+
+  <view wx:if="{{error}}" class="error">{{error}}</view>
+</view>

@@ -1,0 +1,83 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="hint">加载中…</view>
+
+  <block wx:else>
+    <view class="section">
+      <text class="section-title">基本信息</text>
+      <view class="field">
+        <text class="label">商品名称 *</text>
+        <input class="input" placeholder="请输入商品名称" value="{{name}}" data-field="name" bindinput="handleInput" />
+      </view>
+      <view class="field">
+        <text class="label">SKU</text>
+        <input class="input" placeholder="商品编号（可选）" value="{{sku}}" data-field="sku" bindinput="handleInput" />
+      </view>
+      <view class="field">
+        <text class="label">分类</text>
+        <picker mode="selector" range="{{categoryLabels}}" value="{{categoryIndex}}" bindchange="handleCategoryChange">
+          <view class="input picker">{{categoryLabels[categoryIndex]}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="label">描述</text>
+        <textarea class="textarea" placeholder="商品描述" value="{{description}}" data-field="description" bindinput="handleInput" auto-height />
+      </view>
+      <view class="field">
+        <text class="label">技术规格</text>
+        <textarea class="textarea" placeholder="技术参数（可选）" value="{{technicalSpecs}}" data-field="technicalSpecs" bindinput="handleInput" auto-height />
+      </view>
+      <view class="field">
+        <text class="label">认证</text>
+        <input class="input" placeholder="如 CE, RoHS（可选）" value="{{certifications}}" data-field="certifications" bindinput="handleInput" />
+      </view>
+      <view class="field">
+        <text class="label">价格说明</text>
+        <input class="input" placeholder="价格信息（可选）" value="{{pricing}}" data-field="pricing" bindinput="handleInput" />
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">数量与价格</text>
+      <view class="row">
+        <view class="field half">
+          <text class="label">MOQ</text>
+          <input class="input" type="number" placeholder="最小起订量" value="{{moq}}" data-field="moq" bindinput="handleInput" />
+        </view>
+        <view class="field half">
+          <text class="label">单价</text>
+          <input class="input" type="digit" placeholder="单价" value="{{unitPrice}}" data-field="unitPrice" bindinput="handleInput" />
+        </view>
+      </view>
+      <view class="row">
+        <view class="field half">
+          <text class="label">价格区间（低）</text>
+          <input class="input" type="digit" placeholder="最低价" value="{{priceLow}}" data-field="priceLow" bindinput="handleInput" />
+        </view>
+        <view class="field half">
+          <text class="label">价格区间（高）</text>
+          <input class="input" type="digit" placeholder="最高价" value="{{priceHigh}}" data-field="priceHigh" bindinput="handleInput" />
+        </view>
+      </view>
+      <view class="field">
+        <text class="label">交货期（天）</text>
+        <input class="input" type="number" placeholder="交货期天数" value="{{leadTime}}" data-field="leadTime" bindinput="handleInput" />
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">商品图片（{{images.length}}/10）</text>
+      <view class="image-grid">
+        <view wx:for="{{images}}" wx:key="*this" class="image-item">
+          <image class="image-thumb" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="handlePreviewImage" />
+          <view class="image-remove" data-index="{{index}}" catchtap="handleRemoveImage">×</view>
+        </view>
+        <view wx:if="{{images.length < 10}}" class="image-add" bindtap="handleChooseImage">
+          <text class="image-add-plus">+</text>
+        </view>
+      </view>
+      <view wx:if="{{uploading}}" class="hint">图片上传中…</view>
+    </view>
+
+    <button class="btn primary save" bindtap="handleSave" loading="{{saving}}" disabled="{{saving}}">保存</button>
+  </block>
+</view>

@@ -1,0 +1,114 @@
+.page {
+  min-height: 100vh;
+  padding: 0 64rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.brand {
+  margin-bottom: 80rpx;
+}
+
+.title {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.btn {
+  width: 100%;
+  margin-top: 24rpx;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+}
+
+.btn.wechat {
+  background: #07c160;
+  color: #ffffff;
+}
+
+.btn.primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.btn.secondary {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1rpx solid #e2e8f0;
+}
+
+.btn.text {
+  background: transparent;
+  color: #64748b;
+}
+
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.form.center {
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 24rpx;
+  margin-bottom: 24rpx;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  display: flex;
+  align-items: center;
+}
+
+.picker {
+  color: #0f172a;
+}
+
+.hint {
+  margin-top: 32rpx;
+  font-size: 26rpx;
+  color: #64748b;
+  text-align: center;
+}
+
+.success-title {
+  margin-top: 32rpx;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #0f172a;
+  text-align: center;
+}
+
+.registered-email {
+  margin-top: 16rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2563eb;
+  text-align: center;
+  word-break: break-all;
+}
+
+.resend-message {
+  margin-top: 24rpx;
+  font-size: 26rpx;
+  color: #16a34a;
+  text-align: center;
+}
+
+.error {
+  margin-top: 32rpx;
+  font-size: 26rpx;
+  color: #dc2626;
+  text-align: center;
+}

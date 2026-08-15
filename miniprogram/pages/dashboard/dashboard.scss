@@ -1,0 +1,168 @@
+.page {
+  min-height: 100vh;
+  padding: 32rpx;
+  box-sizing: border-box;
+  background: #f8fafc;
+}
+
+.header {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.store-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.email {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: #64748b;
+}
+
+.uid {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+.stats {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.stat {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.stat-label {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #64748b;
+}
+
+.section {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8rpx 0;
+}
+
+.menu-label {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.menu-arrow {
+  font-size: 40rpx;
+  color: #94a3b8;
+  line-height: 1;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.empty {
+  margin-top: 24rpx;
+  font-size: 26rpx;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.inquiry {
+  margin-top: 24rpx;
+  padding: 20rpx;
+  background: #f8fafc;
+  border-radius: 12rpx;
+}
+
+.inquiry-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inquiry-email {
+  font-size: 26rpx;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.inquiry-status {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+.inquiry-status.replied {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.inquiry-status.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.inquiry-msg {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #64748b;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hint {
+  margin-top: 24rpx;
+  font-size: 26rpx;
+  color: #64748b;
+  text-align: center;
+}
+
+.error {
+  margin-top: 24rpx;
+  font-size: 26rpx;
+  color: #dc2626;
+  text-align: center;
+}
+
+.btn {
+  width: 100%;
+  margin-top: 16rpx;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  background: #e2e8f0;
+  color: #0f172a;
+}

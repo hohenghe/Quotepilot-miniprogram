@@ -1,0 +1,64 @@
+<view class="page">
+  <view class="score-card">
+    <text class="score-label">店铺评分</text>
+    <text class="score-value">{{scoreText}}</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="hint">加载中…</view>
+
+  <block wx:else>
+    <view wx:if="{{error}}" class="state">
+      <text class="state-text error">{{error}}</text>
+      <button class="btn secondary" bindtap="handleRetry">重试</button>
+    </view>
+
+    <block wx:elif="{{items.length === 0}}">
+      <view class="state">
+        <text class="state-title">暂无评价</text>
+        <text class="state-text">还没有收到买家评价</text>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="list">
+        <view wx:for="{{items}}" wx:key="id" class="card">
+          <view class="card-top">
+            <view class="card-user">
+              <text class="user-name">{{item.userName}}</text>
+              <text class="rating">★ {{item.ratingText}}</text>
+            </view>
+            <text wx:if="{{item.reported}}" class="reported">已举报</text>
+            <button
+              wx:else
+              class="report-btn"
+              bindtap="handleReport"
+              data-id="{{item.id}}"
+              loading="{{reportingId === item.id}}"
+              disabled="{{reportingId === item.id}}"
+            >举报</button>
+          </view>
+
+          <view wx:if="{{item.timeText}}" class="time">{{item.timeText}}</view>
+
+          <view wx:if="{{item.content}}" class="content">{{item.content}}</view>
+          <view wx:else class="content empty">该买家未留下文字评价</view>
+
+          <view wx:if="{{item.images.length > 0}}" class="images">
+            <image
+              wx:for="{{item.images}}"
+              wx:for-item="img"
+              wx:for-index="imgIndex"
+              wx:key="*this"
+              class="image-thumb"
+              src="{{img}}"
+              mode="aspectFill"
+              data-id="{{item.id}}"
+              data-index="{{imgIndex}}"
+              bindtap="handlePreviewImage"
+            />
+          </view>
+        </view>
+      </view>
+    </block>
+  </block>
+</view>

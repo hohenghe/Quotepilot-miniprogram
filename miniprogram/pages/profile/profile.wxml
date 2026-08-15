@@ -1,0 +1,56 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="hint">加载中…</view>
+
+  <block wx:else>
+    <view class="section">
+      <text class="section-title">店铺资料</text>
+
+      <view class="field">
+        <text class="label">店铺名称</text>
+        <input class="input" placeholder="店铺名称" value="{{storeName}}" data-field="storeName" bindinput="handleInput" />
+      </view>
+      <view class="field">
+        <text class="label">公司名称</text>
+        <input class="input" placeholder="公司名称" value="{{name}}" data-field="name" bindinput="handleInput" />
+      </view>
+      <view class="field">
+        <text class="label">电话</text>
+        <input class="input" type="text" placeholder="电话" value="{{phone}}" data-field="phone" bindinput="handleInput" />
+      </view>
+      <view class="field">
+        <text class="label">国家</text>
+        <picker mode="selector" range="{{countries}}" value="{{countryIndex}}" bindchange="handleCountryChange">
+          <view class="input picker">{{countries[countryIndex]}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="label">邮箱</text>
+        <input class="input" disabled value="{{email}}" />
+      </view>
+      <view class="field">
+        <text class="label">会员号</text>
+        <input class="input" disabled value="{{uid}}" />
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">头像</text>
+      <view class="upload-row">
+        <image wx:if="{{avatarUrl}}" class="preview avatar" src="{{avatarUrl}}" mode="aspectFill" bindtap="previewAvatar" />
+        <view wx:else class="preview avatar placeholder"></view>
+        <button class="btn secondary upload-btn" bindtap="handleChooseAvatar" loading="{{uploadingAvatar}}" disabled="{{uploadingAvatar}}">上传头像</button>
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">营业执照</text>
+      <view class="upload-row">
+        <image wx:if="{{licenseUrl}}" class="preview license" src="{{licenseUrl}}" mode="aspectFill" bindtap="previewLicense" />
+        <view wx:else class="preview license placeholder"></view>
+        <button class="btn secondary upload-btn" bindtap="handleChooseLicense" loading="{{uploadingLicense}}" disabled="{{uploadingLicense}}">上传营业执照</button>
+      </view>
+    </view>
+
+    <button class="btn primary save" bindtap="handleSave" loading="{{saving}}" disabled="{{saving}}">保存</button>
+  </block>
+</view>

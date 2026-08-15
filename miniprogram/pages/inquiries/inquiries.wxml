@@ -1,0 +1,51 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="hint">加载中…</view>
+
+  <block wx:else>
+    <view wx:if="{{error}}" class="state">
+      <text class="state-text error">{{error}}</text>
+      <button class="btn secondary" bindtap="handleRetry">重试</button>
+    </view>
+
+    <block wx:elif="{{items.length === 0}}">
+      <view class="state">
+        <text class="state-title">暂无询盘</text>
+        <text class="state-text">还没有收到任何买家询盘</text>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="list">
+        <view wx:for="{{items}}" wx:key="id" class="card">
+          <view class="card-top">
+            <text class="buyer">{{item.buyer_email || '买家'}}</text>
+            <text class="status {{item.replied ? 'replied' : 'pending'}}">{{item.replied ? '已回复' : '待回复'}}</text>
+          </view>
+          <view wx:if="{{item.productText}}" class="product">{{item.productText}}</view>
+          <view class="msg">{{item.raw_message}}</view>
+          <view wx:if="{{item.timeText}}" class="time">{{item.timeText}}</view>
+
+          <view wx:if="{{item.reply_body}}" class="reply-box">
+            <view class="reply-head">
+              <text class="reply-title">AI 回复</text>
+              <button class="copy-btn" catchtap="handleCopy" data-text="{{item.reply_body}}">复制回复</button>
+            </view>
+            <text class="reply-body">{{item.reply_body}}</text>
+          </view>
+
+          <button
+            wx:else
+            class="btn primary generate-btn"
+            bindtap="handleGenerateReply"
+            data-id="{{item.id}}"
+            loading="{{generatingId === item.id}}"
+            disabled="{{generatingId === item.id}}"
+          >{{generatingId === item.id ? '生成中…' : '生成 AI 回复'}}</button>
+        </view>
+      </view>
+
+      <view wx:if="{{loadingMore}}" class="hint">加载中…</view>
+      <view wx:elif="{{!hasNext && items.length > 0}}" class="hint end">没有更多了</view>
+    </block>
+  </block>
+</view>

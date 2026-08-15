@@ -1,0 +1,77 @@
+<view class="page">
+  <view class="search-bar">
+    <input
+      class="search-input"
+      placeholder="搜索商品名称"
+      value="{{keyword}}"
+      confirm-type="search"
+      bindinput="handleSearchInput"
+      bindconfirm="handleSearch"
+    />
+    <button wx:if="{{keyword}}" class="search-clear" bindtap="handleClearSearch">清除</button>
+    <button class="search-btn" bindtap="handleSearch">搜索</button>
+  </view>
+
+  <view class="toolbar">
+    <button class="tool-btn primary" bindtap="goCreate">新增商品</button>
+    <button class="tool-btn" bindtap="handleImportFile" disabled="{{importing}}">{{importing ? '导入中…' : '批量上传'}}</button>
+    <button class="tool-btn" bindtap="toggleSelectMode">{{selecting ? '取消' : '选择'}}</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="hint">加载中…</view>
+
+  <block wx:else>
+    <view wx:if="{{error}}" class="state">
+      <text class="state-text error">{{error}}</text>
+      <button class="btn secondary" bindtap="handleSearch">重试</button>
+    </view>
+
+    <block wx:elif="{{products.length === 0}}">
+      <view class="state">
+        <text class="state-title">暂无商品</text>
+        <text class="state-text">{{keyword ? '没有找到匹配的商品' : '还没有添加任何商品'}}</text>
+        <button wx:if="{{!keyword}}" class="btn primary" bindtap="goCreate">新增商品</button>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="list">
+        <view wx:for="{{products}}" wx:key="id" class="card" bindtap="handleCardTap" data-id="{{item.id}}">
+          <view wx:if="{{selecting}}" class="checkbox {{item.selected ? 'checked' : ''}}">
+            <text wx:if="{{item.selected}}" class="checkbox-mark">✓</text>
+          </view>
+          <image wx:if="{{item.coverImage}}" class="card-image" src="{{item.coverImage}}" mode="aspectFill" />
+          <view wx:else class="card-image placeholder"></view>
+
+          <view class="card-body">
+            <view class="card-name">{{item.name}}</view>
+            <view wx:if="{{item.sku || item.category}}" class="card-sub">
+              <text wx:if="{{item.sku}}" class="card-sku">SKU {{item.sku}}</text>
+              <text wx:if="{{item.category}}" class="card-category">{{item.category}}</text>
+            </view>
+            <view wx:if="{{item.description}}" class="card-desc">{{item.description}}</view>
+            <view class="card-meta">
+              <text wx:if="{{item.priceText}}" class="card-price">{{item.priceText}}</text>
+              <text wx:if="{{item.moqText}}" class="card-moq">{{item.moqText}}</text>
+              <text class="card-status {{item.active ? 'on' : 'off'}}">{{item.active ? '在售' : '下架'}}</text>
+            </view>
+          </view>
+
+          <view wx:if="{{!selecting}}" class="card-actions">
+            <button class="card-btn" catchtap="goEdit" data-id="{{item.id}}">编辑</button>
+            <button class="card-btn danger" catchtap="handleDelete" data-id="{{item.id}}">删除</button>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{loadingMore}}" class="hint">加载中…</view>
+      <view wx:elif="{{!hasNext && products.length > 0}}" class="hint end">没有更多了</view>
+    </block>
+  </block>
+
+  <view wx:if="{{selecting && products.length > 0}}" class="select-bar">
+    <text class="select-count">已选 {{selectedCount}} 项</text>
+    <button class="select-btn" bindtap="selectAll">{{allSelected ? '取消全选' : '全选'}}</button>
+    <button class="select-btn danger" bindtap="handleBatchDelete" disabled="{{deleting}}">删除所选</button>
+  </view>
+</view>

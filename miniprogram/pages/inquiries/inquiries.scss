@@ -1,0 +1,171 @@
+.page {
+  min-height: 100vh;
+  padding: 24rpx;
+  box-sizing: border-box;
+  background: #f8fafc;
+}
+
+.hint {
+  margin-top: 40rpx;
+  font-size: 26rpx;
+  color: #64748b;
+  text-align: center;
+}
+
+.hint.end {
+  padding: 24rpx 0;
+  color: #94a3b8;
+}
+
+.state {
+  margin-top: 120rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.state-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.state-text {
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.state-text.error {
+  color: #dc2626;
+}
+
+.btn {
+  margin-top: 24rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+}
+
+.btn.secondary {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1rpx solid #e2e8f0;
+}
+
+.btn.primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buyer {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #0f172a;
+  word-break: break-all;
+}
+
+.status {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+
+.status.replied {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.product {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #2563eb;
+  background: #eff6ff;
+  display: inline-block;
+  padding: 2rpx 12rpx;
+  border-radius: 6rpx;
+}
+
+.msg {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #334155;
+  line-height: 1.6;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.time {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: #94a3b8;
+}
+
+.reply-box {
+  margin-top: 16rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.reply-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.reply-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.copy-btn {
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0 24rpx;
+  margin: 0;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+}
+
+.reply-body {
+  font-size: 24rpx;
+  color: #334155;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.generate-btn {
+  width: 100%;
+  margin-top: 16rpx;
+}
