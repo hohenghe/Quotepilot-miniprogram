@@ -6,6 +6,7 @@ import {
   ProductPayload,
   DocumentUploadResult,
   SellerProduct,
+  AIProductRecognitionResult,
 } from '../types/product'
 import {
   SellerInquiryItem,
@@ -85,6 +86,10 @@ export function uploadAvatarImage(filePath: string): Promise<{ url: string }> {
 
 export function uploadLicenseImage(filePath: string): Promise<{ url: string }> {
   return uploadFile<{ url: string }>('/api/files/upload', filePath, { kind: 'license' })
+}
+
+export function recognizeProductImage(filePath: string): Promise<AIProductRecognitionResult> {
+  return uploadFile<AIProductRecognitionResult>('/api/products/recognize', filePath)
 }
 
 export function getSellerInquiries(page = 1, pageSize = 20): Promise<SellerInquiryListResult> {

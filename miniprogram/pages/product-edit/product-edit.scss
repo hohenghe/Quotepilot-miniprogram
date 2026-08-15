@@ -134,6 +134,21 @@
   font-size: $fs-lg;
 }
 
+.ai-btn {
+  width: 100%;
+  background: $color-primary-soft;
+  color: $color-primary;
+  border: 1rpx solid $color-primary;
+}
+
+.ai-status {
+  display: block;
+  margin-top: 12rpx;
+  font-size: $fs-sm;
+  color: $color-success;
+  text-align: center;
+}
+
 .btn.primary {
   background: $color-primary;
   color: #ffffff;

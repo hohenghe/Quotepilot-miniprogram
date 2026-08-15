@@ -2,6 +2,13 @@
   <view wx:if="{{loading}}" class="hint">加载中…</view>
 
   <block wx:else>
+    <view class="section ai-section">
+      <button class="btn ai-btn" bindtap="handleChooseAiImage" loading="{{recognizing}}" disabled="{{recognizing}}">
+        {{recognizing ? '正在识别商品参数…' : (aiDone ? '📷 重新识别' : '📷 AI 拍照识别')}}
+      </button>
+      <text wx:if="{{aiDone && !recognizing}}" class="ai-status">已识别，请检查参数</text>
+    </view>
+
     <view class="section">
       <text class="section-title">基本信息</text>
       <view class="field">

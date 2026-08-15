@@ -1,6 +1,6 @@
 import { getToken } from '../../utils/auth'
-import { getSellerProduct, createSellerProduct, updateSellerProduct, deleteSellerProduct, uploadProductImage } from '../../services/seller'
-import { ProductPayload } from '../../types/product'
+import { getSellerProduct, createSellerProduct, updateSellerProduct, deleteSellerProduct, uploadProductImage, recognizeProductImage } from '../../services/seller'
+import { ProductPayload, AIRecognizedFields } from '../../types/product'
 
 const MAX_IMAGES = 10
 
@@ -31,6 +31,8 @@ Page({
     loading: false,
     saving: false,
     uploading: false,
+    recognizing: false,
+    aiDone: false,
     name: '',
     sku: '',
     category: 'other',
@@ -165,6 +167,64 @@ Page({
       pricing: d.pricing.trim() || null,
       lead_time_days: intOrNull(d.leadTime),
       images: d.images,
+    }
+  },
+
+  handleChooseAiImage() {
+    if (this.data.recognizing) return
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['camera', 'album'],
+      sizeType: ['compressed'],
+      success: (res) => {
+        const file = res.tempFiles && res.tempFiles[0]
+        if (file && file.tempFilePath) {
+          this.handleRecognize(file.tempFilePath)
+        }
+      },
+    })
+  },
+
+  async handleRecognize(filePath: string) {
+    if (this.data.recognizing) return
+    this.setData({ recognizing: true })
+    try {
+      const res = await recognizeProductImage(filePath)
+      if (res.success && res.data) {
+        this.applyRecognition(res.data)
+        this.setData({ aiDone: true })
+        wx.showToast({ title: '已识别，请检查参数', icon: 'success' })
+      } else {
+        wx.showToast({ title: '识别失败，请稍后重试', icon: 'none' })
+      }
+    } catch (e) {
+      const msg = (e as Error).message || ''
+      wx.showToast({ title: msg || '识别失败，请稍后重试', icon: 'none' })
+    } finally {
+      this.setData({ recognizing: false })
+    }
+  },
+
+  applyRecognition(fields: AIRecognizedFields) {
+    const patch: Record<string, any> = {}
+    if (fields.name != null) patch.name = fields.name
+    if (fields.sku != null) patch.sku = fields.sku
+    if (fields.description != null) patch.description = fields.description
+    if (fields.technical_specs != null) patch.technicalSpecs = fields.technical_specs
+    if (fields.certifications != null) patch.certifications = fields.certifications
+    if (fields.pricing != null) patch.pricing = fields.pricing
+    if (fields.moq != null) patch.moq = String(fields.moq)
+    if (fields.unit_price != null) patch.unitPrice = String(fields.unit_price)
+    if (fields.price_range_low != null) patch.priceLow = String(fields.price_range_low)
+    if (fields.price_range_high != null) patch.priceHigh = String(fields.price_range_high)
+    if (fields.lead_time_days != null) patch.leadTime = String(fields.lead_time_days)
+    if (fields.category != null && CATEGORIES.indexOf(fields.category) >= 0) {
+      patch.category = fields.category
+      patch.categoryIndex = CATEGORIES.indexOf(fields.category)
+    }
+    if (Object.keys(patch).length > 0) {
+      this.setData(patch as any)
     }
   },
 
