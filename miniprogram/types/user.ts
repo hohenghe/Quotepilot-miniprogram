@@ -16,6 +16,5 @@ export interface UpdateProfilePayload {
   store_name?: string
   avatar_url?: string
   business_license_url?: string
-  phone?: string
   country?: string
 }

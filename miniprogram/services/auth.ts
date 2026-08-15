@@ -72,3 +72,10 @@ export function resendVerification(email: string): Promise<RegisterResult> {
     data: { email },
   })
 }
+
+export function changePassword(currentPassword: string, newPassword: string): Promise<AuthResult> {
+  return request<AuthResult>('/api/auth/change-password', {
+    method: 'POST',
+    data: { current_password: currentPassword, new_password: newPassword },
+  })
+}

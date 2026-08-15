@@ -14,10 +14,6 @@
         <input class="input" placeholder="公司名称" value="{{name}}" data-field="name" bindinput="handleInput" />
       </view>
       <view class="field">
-        <text class="label">电话</text>
-        <input class="input" type="text" placeholder="电话" value="{{phone}}" data-field="phone" bindinput="handleInput" />
-      </view>
-      <view class="field">
         <text class="label">国家</text>
         <picker mode="selector" range="{{countries}}" value="{{countryIndex}}" bindchange="handleCountryChange">
           <view class="input picker">{{countries[countryIndex]}}</view>
@@ -30,6 +26,30 @@
       <view class="field">
         <text class="label">会员号</text>
         <input class="input" disabled value="{{uid}}" />
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">账户安全</text>
+
+      <view class="row-item" bindtap="goChangePassword">
+        <text class="row-label">修改密码</text>
+        <text class="row-arrow">›</text>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="row-item">
+        <text class="row-label">主手机号</text>
+        <text class="row-value">{{phone || '未绑定'}}</text>
+      </view>
+      <text class="row-hint">主手机号不可直接修改</text>
+
+      <view class="divider"></view>
+
+      <view class="row-item">
+        <text class="row-label">其他绑定手机号</text>
+        <text class="row-value muted">暂未开放</text>
       </view>
     </view>
 
@@ -52,5 +72,7 @@
     </view>
 
     <button class="btn primary save" bindtap="handleSave" loading="{{saving}}" disabled="{{saving}}">保存</button>
+
+    <button class="btn logout" bindtap="handleLogout">退出登录</button>
   </block>
 </view>

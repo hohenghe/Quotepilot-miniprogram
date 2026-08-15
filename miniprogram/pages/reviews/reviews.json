@@ -1,6 +1,5 @@
 {
   "navigationBarTitleText": "评价管理",
-  "navigationStyle": "default",
   "enablePullDownRefresh": true,
   "backgroundTextStyle": "dark"
 }

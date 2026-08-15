@@ -1,3 +1,5 @@
+@import "../../styles/variables.scss";
+
 .page {
   min-height: 100vh;
   padding: 0 64rpx;
@@ -6,24 +8,23 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
 }
 
 .brand {
-  margin-bottom: 80rpx;
+  margin-bottom: 64rpx;
 }
 
 .title {
   font-size: 44rpx;
-  font-weight: 600;
-  color: #0f172a;
+  font-weight: 700;
+  color: $color-text;
 }
 
 .btn {
   width: 100%;
-  margin-top: 24rpx;
-  border-radius: 16rpx;
-  font-size: 32rpx;
+  margin-top: $space-lg;
+  border-radius: $radius-md;
+  font-size: $fs-xl;
 }
 
 .btn.wechat {
@@ -32,19 +33,19 @@
 }
 
 .btn.primary {
-  background: #2563eb;
+  background: $color-primary;
   color: #ffffff;
 }
 
 .btn.secondary {
-  background: #ffffff;
-  color: #0f172a;
-  border: 1rpx solid #e2e8f0;
+  background: $color-surface;
+  color: $color-text;
+  border: 1rpx solid $color-border;
 }
 
 .btn.text {
   background: transparent;
-  color: #64748b;
+  color: $color-text-2;
 }
 
 .form {
@@ -59,26 +60,33 @@
 
 .input {
   width: 100%;
-  height: 88rpx;
+  height: $input-h;
   padding: 0 24rpx;
-  margin-bottom: 24rpx;
+  margin-bottom: $space-lg;
   box-sizing: border-box;
-  background: #ffffff;
-  border: 1rpx solid #e2e8f0;
-  border-radius: 16rpx;
-  font-size: 30rpx;
+  background: $color-surface;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-md;
+  font-size: $fs-lg;
   display: flex;
   align-items: center;
 }
 
 .picker {
-  color: #0f172a;
+  color: $color-text;
 }
 
 .hint {
   margin-top: 32rpx;
-  font-size: 26rpx;
-  color: #64748b;
+  font-size: $fs-md;
+  color: $color-text-2;
+  text-align: center;
+}
+
+.error {
+  margin-top: 32rpx;
+  font-size: $fs-md;
+  color: $color-danger;
   text-align: center;
 }
 
@@ -86,29 +94,22 @@
   margin-top: 32rpx;
   font-size: 40rpx;
   font-weight: 600;
-  color: #0f172a;
+  color: $color-text;
   text-align: center;
 }
 
 .registered-email {
-  margin-top: 16rpx;
-  font-size: 32rpx;
+  margin-top: $space-md;
+  font-size: $fs-xl;
   font-weight: 600;
-  color: #2563eb;
+  color: $color-primary;
   text-align: center;
   word-break: break-all;
 }
 
 .resend-message {
-  margin-top: 24rpx;
-  font-size: 26rpx;
-  color: #16a34a;
-  text-align: center;
-}
-
-.error {
-  margin-top: 32rpx;
-  font-size: 26rpx;
-  color: #dc2626;
+  margin-top: $space-lg;
+  font-size: $fs-md;
+  color: $color-success;
   text-align: center;
 }

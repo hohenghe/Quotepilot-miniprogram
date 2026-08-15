@@ -1,7 +1,6 @@
 import { getToken } from '../../utils/auth'
 import {
   getSellerProducts,
-  deleteSellerProduct,
   deleteSellerProducts,
   uploadProductFile,
 } from '../../services/seller'
@@ -168,30 +167,6 @@ Page({
 
   navigateToEdit(id: number) {
     wx.navigateTo({ url: `/pages/product-edit/product-edit?id=${id}` })
-  },
-
-  goEdit(e: WechatMiniprogram.TouchEvent) {
-    this.navigateToEdit(Number(e.currentTarget.dataset.id))
-  },
-
-  handleDelete(e: WechatMiniprogram.TouchEvent) {
-    const id = Number(e.currentTarget.dataset.id)
-    wx.showModal({
-      title: '删除商品',
-      content: '确定删除该商品吗？此操作不可撤销。',
-      confirmText: '删除',
-      confirmColor: '#dc2626',
-      success: async (res) => {
-        if (!res.confirm) return
-        try {
-          await deleteSellerProduct(id)
-          wx.showToast({ title: '已删除', icon: 'success' })
-          this.loadProducts(true)
-        } catch (err) {
-          wx.showToast({ title: (err as Error).message || '删除失败', icon: 'none' })
-        }
-      },
-    })
   },
 
   toggleSelectMode() {

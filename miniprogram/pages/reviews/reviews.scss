@@ -1,36 +1,37 @@
+@import "../../styles/variables.scss";
+
 .page {
   min-height: 100vh;
-  padding: 24rpx;
+  padding: $space-page;
   box-sizing: border-box;
-  background: #f8fafc;
 }
 
 .score-card {
-  background: #ffffff;
-  border-radius: 20rpx;
+  background: $color-surface;
+  border-radius: $radius-lg;
   padding: 32rpx;
-  margin-bottom: 24rpx;
+  margin-bottom: $space-lg;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .score-label {
-  font-size: 30rpx;
+  font-size: $fs-lg;
   font-weight: 600;
-  color: #0f172a;
+  color: $color-text;
 }
 
 .score-value {
-  font-size: 36rpx;
+  font-size: $fs-2xl;
   font-weight: 700;
-  color: #f59e0b;
+  color: $color-star;
 }
 
 .hint {
   margin-top: 40rpx;
-  font-size: 26rpx;
-  color: #64748b;
+  font-size: $fs-md;
+  color: $color-text-2;
   text-align: center;
 }
 
@@ -42,44 +43,44 @@
 }
 
 .state-title {
-  font-size: 32rpx;
+  font-size: $fs-xl;
   font-weight: 600;
-  color: #0f172a;
+  color: $color-text;
 }
 
 .state-text {
-  margin-top: 16rpx;
-  font-size: 26rpx;
-  color: #94a3b8;
+  margin-top: $space-md;
+  font-size: $fs-md;
+  color: $color-text-3;
   text-align: center;
 }
 
 .state-text.error {
-  color: #dc2626;
+  color: $color-danger;
 }
 
 .btn {
-  margin-top: 24rpx;
-  border-radius: 16rpx;
-  font-size: 28rpx;
+  margin-top: $space-lg;
+  border-radius: $radius-md;
+  font-size: $fs-base;
 }
 
 .btn.secondary {
-  background: #ffffff;
-  color: #0f172a;
-  border: 1rpx solid #e2e8f0;
+  background: $color-surface;
+  color: $color-text;
+  border: 1rpx solid $color-border;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: $space-md;
 }
 
 .card {
-  background: #ffffff;
-  border-radius: 20rpx;
-  padding: 24rpx;
+  background: $color-surface;
+  border-radius: $radius-lg;
+  padding: $space-lg;
 }
 
 .card-top {
@@ -91,14 +92,14 @@
 .card-user {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: $space-md;
   min-width: 0;
 }
 
 .user-name {
-  font-size: 28rpx;
+  font-size: $fs-base;
   font-weight: 600;
-  color: #0f172a;
+  color: $color-text;
   max-width: 320rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -106,17 +107,17 @@
 }
 
 .rating {
-  font-size: 26rpx;
-  color: #f59e0b;
+  font-size: $fs-md;
+  color: $color-star;
   flex-shrink: 0;
 }
 
 .reported {
-  font-size: 22rpx;
+  font-size: $fs-xs;
   padding: 4rpx 12rpx;
   border-radius: 8rpx;
-  background: #fef3c7;
-  color: #d97706;
+  background: $color-warning-bg;
+  color: $color-warning;
   flex-shrink: 0;
 }
 
@@ -125,42 +126,42 @@
   line-height: 56rpx;
   padding: 0 24rpx;
   margin: 0;
-  background: #fef2f2;
-  color: #dc2626;
-  border-radius: 12rpx;
-  font-size: 24rpx;
+  background: $color-danger-bg;
+  color: $color-danger;
+  border-radius: $radius-sm;
+  font-size: $fs-sm;
   flex-shrink: 0;
 }
 
 .time {
   margin-top: 10rpx;
-  font-size: 22rpx;
-  color: #94a3b8;
+  font-size: $fs-xs;
+  color: $color-text-3;
 }
 
 .content {
   margin-top: 12rpx;
-  font-size: 26rpx;
-  color: #334155;
+  font-size: $fs-md;
+  color: $color-text;
   line-height: 1.6;
   word-break: break-all;
   white-space: pre-wrap;
 }
 
 .content.empty {
-  color: #94a3b8;
+  color: $color-text-3;
 }
 
 .images {
-  margin-top: 16rpx;
+  margin-top: $space-md;
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
+  gap: $space-sm;
 }
 
 .image-thumb {
   width: 140rpx;
   height: 140rpx;
-  border-radius: 12rpx;
-  background: #e2e8f0;
+  border-radius: $radius-sm;
+  background: $color-bg;
 }

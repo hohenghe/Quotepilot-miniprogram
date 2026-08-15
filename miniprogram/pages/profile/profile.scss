@@ -1,31 +1,72 @@
+@import "../../styles/variables.scss";
+
 .page {
   min-height: 100vh;
-  padding: 24rpx;
+  padding: $space-page;
   padding-bottom: 60rpx;
   box-sizing: border-box;
-  background: #f8fafc;
 }
 
 .hint {
   margin-top: 40rpx;
-  font-size: 26rpx;
-  color: #64748b;
+  font-size: $fs-md;
+  color: $color-text-2;
   text-align: center;
 }
 
 .section {
-  background: #ffffff;
-  border-radius: 20rpx;
-  padding: 24rpx;
-  margin-bottom: 24rpx;
+  background: $color-surface;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  margin-bottom: $space-lg;
 }
 
 .section-title {
-  font-size: 30rpx;
+  font-size: $fs-lg;
   font-weight: 600;
-  color: #0f172a;
+  color: $color-text;
   display: block;
   margin-bottom: 20rpx;
+}
+
+.row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+}
+
+.row-label {
+  font-size: $fs-base;
+  color: $color-text;
+}
+
+.row-value {
+  font-size: $fs-base;
+  color: $color-text-2;
+}
+
+.row-value.muted {
+  color: $color-text-3;
+}
+
+.row-arrow {
+  font-size: 36rpx;
+  color: $color-text-3;
+  line-height: 1;
+}
+
+.row-hint {
+  display: block;
+  font-size: $fs-xs;
+  color: $color-text-3;
+  margin-top: 2rpx;
+}
+
+.divider {
+  height: 1rpx;
+  background: $color-border;
+  margin: 8rpx 0;
 }
 
 .field {
@@ -38,43 +79,43 @@
 
 .label {
   display: block;
-  font-size: 24rpx;
-  color: #64748b;
+  font-size: $fs-sm;
+  color: $color-text-2;
   margin-bottom: 10rpx;
 }
 
 .input {
   width: 100%;
-  height: 80rpx;
+  height: $input-h;
   padding: 0 20rpx;
   box-sizing: border-box;
-  background: #ffffff;
-  border: 1rpx solid #e2e8f0;
-  border-radius: 14rpx;
-  font-size: 28rpx;
+  background: $color-surface;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-sm;
+  font-size: $fs-base;
   display: flex;
   align-items: center;
 }
 
 .input[disabled] {
-  background: #f8fafc;
-  color: #94a3b8;
+  background: $color-bg;
+  color: $color-text-3;
 }
 
 .input.picker {
-  color: #0f172a;
+  color: $color-text;
 }
 
 .upload-row {
   display: flex;
   align-items: center;
-  gap: 24rpx;
+  gap: $space-lg;
 }
 
 .preview {
-  border-radius: 12rpx;
+  border-radius: $radius-sm;
   flex-shrink: 0;
-  background: #f1f5f9;
+  background: $color-bg;
 }
 
 .preview.avatar {
@@ -89,34 +130,42 @@
 }
 
 .preview.placeholder {
-  border: 2rpx dashed #cbd5e1;
+  border: 2rpx dashed $color-border;
 }
 
 .upload-btn {
   margin: 0;
-  height: 72rpx;
-  line-height: 72rpx;
+  height: $btn-h-sm;
+  line-height: $btn-h-sm;
   padding: 0 32rpx;
   box-sizing: border-box;
-  font-size: 26rpx;
+  font-size: $fs-md;
 }
 
 .btn {
-  border-radius: 16rpx;
-  font-size: 30rpx;
+  border-radius: $radius-md;
+  font-size: $fs-lg;
 }
 
 .btn.primary {
-  background: #2563eb;
+  background: $color-primary;
   color: #ffffff;
 }
 
 .btn.secondary {
-  background: #ffffff;
-  color: #0f172a;
-  border: 1rpx solid #e2e8f0;
+  background: $color-surface;
+  color: $color-text;
+  border: 1rpx solid $color-border;
 }
 
 .btn.save {
   width: 100%;
+}
+
+.btn.logout {
+  width: 100%;
+  margin-top: $space-md;
+  background: $color-surface;
+  color: $color-danger;
+  border: 1rpx solid $color-border;
 }

@@ -1,20 +1,21 @@
+@import "../../styles/variables.scss";
+
 .page {
   min-height: 100vh;
-  padding: 24rpx;
+  padding: $space-page;
   box-sizing: border-box;
-  background: #f8fafc;
 }
 
 .hint {
   margin-top: 40rpx;
-  font-size: 26rpx;
-  color: #64748b;
+  font-size: $fs-md;
+  color: $color-text-2;
   text-align: center;
 }
 
 .hint.end {
   padding: 24rpx 0;
-  color: #94a3b8;
+  color: $color-text-3;
 }
 
 .state {
@@ -25,49 +26,49 @@
 }
 
 .state-title {
-  font-size: 32rpx;
+  font-size: $fs-xl;
   font-weight: 600;
-  color: #0f172a;
+  color: $color-text;
 }
 
 .state-text {
-  margin-top: 16rpx;
-  font-size: 26rpx;
-  color: #94a3b8;
+  margin-top: $space-md;
+  font-size: $fs-md;
+  color: $color-text-3;
   text-align: center;
 }
 
 .state-text.error {
-  color: #dc2626;
+  color: $color-danger;
 }
 
 .btn {
-  margin-top: 24rpx;
-  border-radius: 16rpx;
-  font-size: 28rpx;
+  margin-top: $space-lg;
+  border-radius: $radius-md;
+  font-size: $fs-base;
 }
 
 .btn.secondary {
-  background: #ffffff;
-  color: #0f172a;
-  border: 1rpx solid #e2e8f0;
+  background: $color-surface;
+  color: $color-text;
+  border: 1rpx solid $color-border;
 }
 
 .btn.primary {
-  background: #2563eb;
+  background: $color-primary;
   color: #ffffff;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: $space-md;
 }
 
 .card {
-  background: #ffffff;
-  border-radius: 20rpx;
-  padding: 24rpx;
+  background: $color-surface;
+  border-radius: $radius-lg;
+  padding: $space-lg;
 }
 
 .card-top {
@@ -77,34 +78,34 @@
 }
 
 .buyer {
-  font-size: 28rpx;
+  font-size: $fs-base;
   font-weight: 600;
-  color: #0f172a;
+  color: $color-text;
   word-break: break-all;
 }
 
 .status {
-  font-size: 22rpx;
+  font-size: $fs-xs;
   padding: 4rpx 12rpx;
   border-radius: 8rpx;
   flex-shrink: 0;
 }
 
 .status.replied {
-  background: #dcfce7;
-  color: #16a34a;
+  background: $color-success-bg;
+  color: $color-success;
 }
 
 .status.pending {
-  background: #fef3c7;
-  color: #d97706;
+  background: $color-warning-bg;
+  color: $color-warning;
 }
 
 .product {
   margin-top: 10rpx;
-  font-size: 24rpx;
-  color: #2563eb;
-  background: #eff6ff;
+  font-size: $fs-sm;
+  color: $color-primary;
+  background: $color-primary-soft;
   display: inline-block;
   padding: 2rpx 12rpx;
   border-radius: 6rpx;
@@ -112,8 +113,8 @@
 
 .msg {
   margin-top: 12rpx;
-  font-size: 26rpx;
-  color: #334155;
+  font-size: $fs-md;
+  color: $color-text;
   line-height: 1.6;
   word-break: break-all;
   white-space: pre-wrap;
@@ -121,15 +122,15 @@
 
 .time {
   margin-top: 12rpx;
-  font-size: 22rpx;
-  color: #94a3b8;
+  font-size: $fs-xs;
+  color: $color-text-3;
 }
 
 .reply-box {
-  margin-top: 16rpx;
-  background: #f8fafc;
-  border: 1rpx solid #e2e8f0;
-  border-radius: 12rpx;
+  margin-top: $space-md;
+  background: $color-bg;
+  border: 1rpx solid $color-border;
+  border-radius: $radius-sm;
   padding: 20rpx;
 }
 
@@ -141,9 +142,9 @@
 }
 
 .reply-title {
-  font-size: 26rpx;
+  font-size: $fs-md;
   font-weight: 600;
-  color: #0f172a;
+  color: $color-text;
 }
 
 .copy-btn {
@@ -151,15 +152,15 @@
   line-height: 56rpx;
   padding: 0 24rpx;
   margin: 0;
-  background: #eff6ff;
-  color: #2563eb;
-  border-radius: 12rpx;
-  font-size: 24rpx;
+  background: $color-primary-soft;
+  color: $color-primary;
+  border-radius: $radius-sm;
+  font-size: $fs-sm;
 }
 
 .reply-body {
-  font-size: 24rpx;
-  color: #334155;
+  font-size: $fs-sm;
+  color: $color-text;
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
@@ -167,5 +168,5 @@
 
 .generate-btn {
   width: 100%;
-  margin-top: 16rpx;
+  margin-top: $space-md;
 }

@@ -79,5 +79,7 @@
     </view>
 
     <button class="btn primary save" bindtap="handleSave" loading="{{saving}}" disabled="{{saving}}">保存</button>
+
+    <button wx:if="{{id}}" class="btn delete" bindtap="handleDelete">删除商品</button>
   </block>
 </view>

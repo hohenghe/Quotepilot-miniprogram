@@ -1,4 +1,4 @@
-import { getToken } from '../../utils/auth'
+import { getToken, logout } from '../../utils/auth'
 import { getMe, updateProfile, uploadAvatarImage, uploadLicenseImage } from '../../services/seller'
 import { UpdateProfilePayload } from '../../types/user'
 
@@ -132,7 +132,6 @@ Page({
     const payload: UpdateProfilePayload = {
       name: this.data.name.trim(),
       store_name: this.data.storeName.trim(),
-      phone: this.data.phone.trim(),
       country: this.data.country,
     }
     if (this.data.avatarUrl) payload.avatar_url = this.data.avatarUrl
@@ -146,5 +145,23 @@ Page({
     } finally {
       this.setData({ saving: false })
     }
+  },
+
+  handleLogout() {
+    wx.showModal({
+      title: '退出登录',
+      content: '确定要退出当前账号吗？',
+      confirmText: '退出',
+      confirmColor: '#dc2626',
+      success: (res) => {
+        if (!res.confirm) return
+        logout()
+        wx.reLaunch({ url: '/pages/login/login' })
+      },
+    })
+  },
+
+  goChangePassword() {
+    wx.navigateTo({ url: '/pages/change-password/change-password' })
   },
 })

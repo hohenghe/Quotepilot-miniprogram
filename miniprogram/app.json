@@ -6,11 +6,15 @@
     "pages/product-edit/product-edit",
     "pages/inquiries/inquiries",
     "pages/profile/profile",
+    "pages/change-password/change-password",
     "pages/reviews/reviews"
   ],
   "window": {
+    "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTextStyle": "black",
-    "navigationStyle": "custom"
+    "navigationStyle": "default",
+    "backgroundColor": "#f5f6f8",
+    "backgroundTextStyle": "dark"
   },
   "style": "v2",
   "rendererOptions": {

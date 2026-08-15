@@ -1,5 +1,5 @@
 import { getToken } from '../../utils/auth'
-import { getSellerProduct, createSellerProduct, updateSellerProduct, uploadProductImage } from '../../services/seller'
+import { getSellerProduct, createSellerProduct, updateSellerProduct, deleteSellerProduct, uploadProductImage } from '../../services/seller'
 import { ProductPayload } from '../../types/product'
 
 const MAX_IMAGES = 10
@@ -190,5 +190,28 @@ Page({
     } finally {
       this.setData({ saving: false })
     }
+  },
+
+  handleDelete() {
+    const id = this.data.id
+    if (!id) return
+    wx.showModal({
+      title: '删除商品',
+      content: '确定删除该商品吗？此操作不可撤销。',
+      confirmText: '删除',
+      confirmColor: '#dc2626',
+      success: async (res) => {
+        if (!res.confirm) return
+        try {
+          await deleteSellerProduct(id)
+          wx.showToast({ title: '已删除', icon: 'success' })
+          setTimeout(() => {
+            wx.navigateBack()
+          }, 500)
+        } catch (e) {
+          wx.showToast({ title: (e as Error).message || '删除失败', icon: 'none' })
+        }
+      },
+    })
   },
 })

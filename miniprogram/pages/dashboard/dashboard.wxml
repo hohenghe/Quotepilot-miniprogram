@@ -1,66 +1,78 @@
 <view class="page">
-  <view class="header">
-    <text class="store-name">{{storeName}}</text>
-    <text class="email">{{email}}</text>
-    <text class="uid">会员号 {{uid}}</text>
-  </view>
+  <block wx:if="{{loading}}">
+    <view class="hint">加载中…</view>
+  </block>
 
-  <view class="stats">
-    <view class="stat">
-      <text class="stat-value">{{productCount}}</text>
-      <text class="stat-label">商品</text>
-    </view>
-    <view class="stat">
-      <text class="stat-value">{{inquiryCount}}</text>
-      <text class="stat-label">询盘</text>
-    </view>
-    <view class="stat">
-      <text class="stat-value">{{pendingCount}}</text>
-      <text class="stat-label">待回复</text>
-    </view>
-    <view class="stat">
-      <text class="stat-value">{{repliedCount}}</text>
-      <text class="stat-label">已回复</text>
-    </view>
-    <view class="stat">
-      <text class="stat-value">{{scoreText}}</text>
-      <text class="stat-label">店铺评分</text>
-    </view>
-  </view>
+  <block wx:elif="{{error}}">
+    <view class="error">{{error}}</view>
+    <button class="btn retry" bindtap="loadData">重试</button>
+  </block>
 
-  <view wx:if="{{loading}}" class="hint">加载中…</view>
-  <view wx:elif="{{error}}" class="error">{{error}}</view>
+  <block wx:else>
+    <view class="header">
+      <text class="store-name">{{storeName}}</text>
+      <text class="uid">会员号 {{uid}}</text>
+    </view>
 
-  <view class="section menu">
-    <view class="menu-item" bindtap="goProducts">
-      <text class="menu-label">商品管理</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="goInquiries">
-      <text class="menu-label">询盘管理</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="goProfile">
-      <text class="menu-label">店铺资料</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="goReviews">
-      <text class="menu-label">评价管理</text>
-      <text class="menu-arrow">›</text>
-    </view>
-  </view>
-
-  <view class="section">
-    <text class="section-title">最近询盘</text>
-    <view wx:if="{{inquiries.length === 0}}" class="empty">暂无询盘</view>
-    <view wx:for="{{inquiries}}" wx:key="id" class="inquiry" bindtap="goInquiries">
-      <view class="inquiry-top">
-        <text class="inquiry-email">{{item.buyer_email || '买家'}}</text>
-        <text class="inquiry-status {{item.status === 'replied' ? 'replied' : 'pending'}}">{{item.status === 'replied' ? '已回复' : '待回复'}}</text>
+    <view class="hero" bindtap="goInquiries">
+      <view class="hero-left">
+        <text class="hero-num">{{pendingCount}}</text>
+        <text class="hero-label">条询盘待回复</text>
       </view>
-      <text class="inquiry-msg">{{item.raw_message}}</text>
+      <text class="hero-cta">去处理 ›</text>
     </view>
-  </view>
 
-  <button class="btn" bindtap="handleLogout">退出登录</button>
+    <view class="stats">
+      <view class="stat">
+        <text class="stat-value">{{productCount}}</text>
+        <text class="stat-label">商品</text>
+      </view>
+      <view class="stat">
+        <text class="stat-value">{{inquiryCount}}</text>
+        <text class="stat-label">总询盘</text>
+      </view>
+      <view class="stat">
+        <text class="stat-value">{{repliedCount}}</text>
+        <text class="stat-label">已回复</text>
+      </view>
+      <view class="stat">
+        <text class="stat-value">{{scoreText}}</text>
+        <text class="stat-label">店铺评分</text>
+      </view>
+    </view>
+
+    <view class="menu">
+      <view class="menu-item" bindtap="goProducts">
+        <text class="menu-label">商品管理</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goInquiries">
+        <text class="menu-label">询盘管理</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goReviews">
+        <text class="menu-label">评价管理</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goProfile">
+        <text class="menu-label">店铺资料</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-head">
+        <text class="section-title">最近询盘</text>
+        <text class="section-more" bindtap="goInquiries">查看全部</text>
+      </view>
+      <view wx:if="{{inquiries.length === 0}}" class="empty">暂无询盘</view>
+      <view wx:for="{{inquiries}}" wx:key="id" class="inquiry" bindtap="goInquiries">
+        <view class="inquiry-top">
+          <text class="inquiry-email">{{item.buyer_email || '买家'}}</text>
+          <text class="inquiry-status {{item.status === 'replied' ? 'replied' : 'pending'}}">{{item.status === 'replied' ? '已回复' : '待回复'}}</text>
+        </view>
+        <text class="inquiry-msg">{{item.raw_message}}</text>
+      </view>
+    </view>
+  </block>
 </view>

@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="search-bar">
+  <view class="search">
     <input
       class="search-input"
       placeholder="搜索商品名称"
@@ -8,14 +8,13 @@
       bindinput="handleSearchInput"
       bindconfirm="handleSearch"
     />
-    <button wx:if="{{keyword}}" class="search-clear" bindtap="handleClearSearch">清除</button>
-    <button class="search-btn" bindtap="handleSearch">搜索</button>
+    <text wx:if="{{keyword}}" class="search-clear" bindtap="handleClearSearch">清除</text>
   </view>
 
-  <view class="toolbar">
-    <button class="tool-btn primary" bindtap="goCreate">新增商品</button>
-    <button class="tool-btn" bindtap="handleImportFile" disabled="{{importing}}">{{importing ? '导入中…' : '批量上传'}}</button>
-    <button class="tool-btn" bindtap="toggleSelectMode">{{selecting ? '取消' : '选择'}}</button>
+  <view class="actions">
+    <button class="act primary" bindtap="goCreate">+ 新增商品</button>
+    <button class="act" bindtap="handleImportFile" disabled="{{importing}}">{{importing ? '导入中…' : '批量上传'}}</button>
+    <button class="act" bindtap="toggleSelectMode">{{selecting ? '完成' : '管理'}}</button>
   </view>
 
   <view wx:if="{{loading}}" class="hint">加载中…</view>
@@ -44,22 +43,19 @@
           <view wx:else class="card-image placeholder"></view>
 
           <view class="card-body">
-            <view class="card-name">{{item.name}}</view>
+            <text class="card-name">{{item.name}}</text>
             <view wx:if="{{item.sku || item.category}}" class="card-sub">
-              <text wx:if="{{item.sku}}" class="card-sku">SKU {{item.sku}}</text>
+              <text wx:if="{{item.sku}}" class="card-sku">{{item.sku}}</text>
               <text wx:if="{{item.category}}" class="card-category">{{item.category}}</text>
             </view>
-            <view wx:if="{{item.description}}" class="card-desc">{{item.description}}</view>
             <view class="card-meta">
               <text wx:if="{{item.priceText}}" class="card-price">{{item.priceText}}</text>
               <text wx:if="{{item.moqText}}" class="card-moq">{{item.moqText}}</text>
-              <text class="card-status {{item.active ? 'on' : 'off'}}">{{item.active ? '在售' : '下架'}}</text>
             </view>
-          </view>
-
-          <view wx:if="{{!selecting}}" class="card-actions">
-            <button class="card-btn" catchtap="goEdit" data-id="{{item.id}}">编辑</button>
-            <button class="card-btn danger" catchtap="handleDelete" data-id="{{item.id}}">删除</button>
+            <view class="card-status">
+              <view class="status-dot {{item.active ? 'on' : 'off'}}"></view>
+              <text class="status-text">{{item.active ? '在售' : '下架'}}</text>
+            </view>
           </view>
         </view>
       </view>

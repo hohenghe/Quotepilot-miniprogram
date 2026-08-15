@@ -1,4 +1,4 @@
-import { getToken, logout } from '../../utils/auth'
+import { getToken } from '../../utils/auth'
 import { getMe, getSellerProducts, getSellerInquiries, getSellerScore, SellerInquiryItem } from '../../services/seller'
 
 Page({
@@ -40,8 +40,8 @@ Page({
         uid: me.uid || '',
         productCount: products.total || 0,
         inquiryCount: inquiries.total || 0,
-        pendingCount: inquiries.pending_count ?? 0,
-        repliedCount: inquiries.replied_count ?? 0,
+        pendingCount: inquiries.pending_count != null ? inquiries.pending_count : 0,
+        repliedCount: inquiries.replied_count != null ? inquiries.replied_count : 0,
         scoreText: score.score != null ? score.score.toFixed(1) : '—',
         inquiries: items.slice(0, 5),
         loading: false,
@@ -49,11 +49,6 @@ Page({
     } catch (e) {
       this.setData({ error: (e as Error).message || '加载失败', loading: false })
     }
-  },
-
-  handleLogout() {
-    logout()
-    wx.reLaunch({ url: '/pages/login/login' })
   },
 
   goProducts() {
