@@ -14,9 +14,9 @@
         <input class="input" placeholder="公司名称" value="{{name}}" data-field="name" bindinput="handleInput" />
       </view>
       <view class="field">
-        <text class="label">国家</text>
-        <picker mode="selector" range="{{countries}}" value="{{countryIndex}}" bindchange="handleCountryChange">
-          <view class="input picker">{{countries[countryIndex]}}</view>
+        <text class="label">地区</text>
+        <picker mode="multiSelector" range="{{regionColumns}}" value="{{regionIndexes}}" bindchange="handleRegionChange" bindcolumnchange="handleRegionColumnChange">
+          <view class="input picker">{{country}}</view>
         </picker>
       </view>
       <view class="field">

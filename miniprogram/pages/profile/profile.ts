@@ -1,8 +1,9 @@
 import { getToken, logout } from '../../utils/auth'
 import { getMe, updateProfile, uploadAvatarImage, uploadLicenseImage } from '../../services/seller'
 import { UpdateProfilePayload } from '../../types/user'
+import { CHINA_PROVINCES, CHINA_REGIONS, parseRegion, regionValue } from '../../config/china-cities'
 
-const COUNTRIES = ['CN', 'US', 'DE', 'GB', 'FR', 'JP', 'KR', 'IN', 'OTHER']
+const REGIONS = CHINA_PROVINCES
 
 Page({
   data: {
@@ -15,9 +16,9 @@ Page({
     name: '',
     storeName: '',
     phone: '',
-    country: 'CN',
-    countries: COUNTRIES,
-    countryIndex: 0,
+    country: regionValue(REGIONS[0], CHINA_REGIONS[REGIONS[0]][0]),
+    regionColumns: [REGIONS, CHINA_REGIONS[REGIONS[0]]],
+    regionIndexes: [0, 0],
     avatarUrl: '',
     licenseUrl: '',
   },
@@ -34,15 +35,18 @@ Page({
     this.setData({ loading: true })
     try {
       const me = await getMe()
-      const idx = COUNTRIES.indexOf(me.country || 'CN')
+      const [provinceIndex, cityIndex] = parseRegion(me.country)
+      const province = REGIONS[provinceIndex]
+      const region = regionValue(province, CHINA_REGIONS[province][cityIndex])
       this.setData({
         email: me.email || '',
         uid: me.uid || '',
         name: me.name || '',
         storeName: me.store_name || '',
         phone: me.phone || '',
-        country: me.country || 'CN',
-        countryIndex: idx >= 0 ? idx : 0,
+        country: region,
+        regionColumns: [REGIONS, CHINA_REGIONS[province]],
+        regionIndexes: [provinceIndex, cityIndex],
         avatarUrl: me.avatar_url || '',
         licenseUrl: me.business_license_url || '',
         loading: false,
@@ -58,9 +62,29 @@ Page({
     this.setData({ [field]: e.detail.value } as any)
   },
 
-  handleCountryChange(e: WechatMiniprogram.PickerChange) {
-    const index = Number(e.detail.value)
-    this.setData({ countryIndex: index, country: this.data.countries[index] })
+  handleRegionColumnChange(e: WechatMiniprogram.PickerColumnChange) {
+    const { column, value } = e.detail
+    const [provinceIndex] = this.data.regionIndexes
+    if (column === 0) {
+      const province = REGIONS[value]
+      const city = CHINA_REGIONS[province][0]
+      this.setData({
+        regionColumns: [REGIONS, CHINA_REGIONS[province]],
+        regionIndexes: [value, 0],
+        country: regionValue(province, city),
+      })
+      return
+    }
+    const province = REGIONS[provinceIndex]
+    const city = CHINA_REGIONS[province][value]
+    this.setData({ regionIndexes: [provinceIndex, value], country: regionValue(province, city) })
+  },
+
+  handleRegionChange(e: WechatMiniprogram.PickerChange) {
+    const [provinceIndex, cityIndex] = e.detail.value as number[]
+    const province = REGIONS[provinceIndex]
+    const city = CHINA_REGIONS[province][cityIndex]
+    this.setData({ regionIndexes: [provinceIndex, cityIndex], country: regionValue(province, city) })
   },
 
   handleChooseAvatar() {

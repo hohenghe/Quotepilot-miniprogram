@@ -12,12 +12,20 @@
 
 .brand {
   margin-bottom: 64rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.title {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: $color-text;
+.brand-logo {
+  width: 420rpx;
+  height: auto;
+}
+
+.brand-subtitle {
+  margin-top: 12rpx;
+  font-size: $fs-md;
+  color: $color-text-2;
 }
 
 .btn {
@@ -25,11 +33,15 @@
   margin-top: $space-lg;
   border-radius: $radius-md;
   font-size: $fs-xl;
+  white-space: nowrap;
 }
 
-.btn.wechat {
-  background: #07c160;
+.btn.phone-login {
+  background: $color-primary;
   color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn.primary {
@@ -76,6 +88,33 @@
   color: $color-text;
 }
 
+.phone-row {
+  display: flex;
+  gap: $space-sm;
+  margin-bottom: $space-lg;
+}
+
+.phone-row .input {
+  margin-bottom: 0;
+}
+
+.phone-input {
+  flex: 1;
+}
+
+.phone-authorize {
+  flex-shrink: 0;
+  height: $input-h;
+  padding: 0 20rpx;
+  background: $color-primary-soft;
+  border: 1rpx solid $color-primary;
+  border-radius: $radius-md;
+  color: $color-primary;
+  font-size: $fs-sm;
+  line-height: $input-h;
+  white-space: nowrap;
+}
+
 .pwd-row {
   display: flex;
   align-items: center;
@@ -94,9 +133,46 @@
 }
 
 .pwd-toggle {
-  font-size: $fs-md;
-  color: $color-primary;
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+}
+
+.eye-icon {
+  position: relative;
+  width: 32rpx;
+  height: 22rpx;
+  border: 3rpx solid $color-text-2;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.eye-icon::after {
+  content: '';
+  position: absolute;
+  width: 8rpx;
+  height: 8rpx;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  background: $color-text-2;
+  transform: translate(-50%, -50%);
+}
+
+.eye-icon.closed::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  width: 40rpx;
+  height: 3rpx;
+  top: 7rpx;
+  left: -7rpx;
+  background: $color-text-2;
+  transform: rotate(-35deg);
+  transform-origin: center;
 }
 
 .hint {
@@ -104,6 +180,20 @@
   font-size: $fs-md;
   color: $color-text-2;
   text-align: center;
+}
+
+.unbound-title {
+  margin-top: 16rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: $color-text;
+  text-align: center;
+}
+
+.bind-hint {
+  margin-top: 0;
+  margin-bottom: $space-lg;
+  text-align: left;
 }
 
 .error {
@@ -128,6 +218,13 @@
   color: $color-primary;
   text-align: center;
   word-break: break-all;
+}
+
+.registered-message {
+  margin-top: $space-md;
+  font-size: $fs-md;
+  color: $color-success;
+  text-align: center;
 }
 
 .resend-message {

@@ -31,21 +31,28 @@ export interface RegisterResult {
   message: string
 }
 
-export function wechatLogin(code: string): Promise<WechatAuthResult> {
+export function getWechatPhone(phoneCode: string): Promise<{ phone: string }> {
+  return request<{ phone: string }>('/api/auth/wechat-phone', {
+    method: 'POST',
+    data: { phone_code: phoneCode },
+  })
+}
+
+export function wechatLogin(code: string, phoneCode: string): Promise<WechatAuthResult> {
   return request<WechatAuthResult>('/api/auth/wechat-login', {
     method: 'POST',
-    data: { code },
+    data: { code, phone_code: phoneCode },
   })
 }
 
-export function wechatBind(code: string, identifier: string, password: string): Promise<WechatAuthResult> {
+export function wechatBind(code: string, phoneCode: string, identifier: string, password: string): Promise<WechatAuthResult> {
   return request<WechatAuthResult>('/api/auth/wechat-bind', {
     method: 'POST',
-    data: { code, identifier, password },
+    data: { code, phone_code: phoneCode, identifier, password },
   })
 }
 
-export function wechatRegister(data: RegisterPayload & { code: string }): Promise<RegisterResult> {
+export function wechatRegister(data: RegisterPayload & { code: string, phone_code: string }): Promise<RegisterResult> {
   return request<RegisterResult>('/api/auth/wechat-register', {
     method: 'POST',
     data,

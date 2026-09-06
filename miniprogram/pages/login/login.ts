@@ -3,28 +3,54 @@ import {
   wechatLogin,
   wechatBind,
   wechatRegister,
+  getWechatPhone,
   login,
   register,
   resendVerification,
   AuthResult,
 } from '../../services/auth'
+import { CHINA_PROVINCES, CHINA_REGIONS, regionValue } from '../../config/china-cities'
 
-const COUNTRIES = ['CN', 'US', 'DE', 'GB', 'FR', 'JP', 'KR', 'IN', 'OTHER']
+const REGIONS = CHINA_PROVINCES
 
 let resendTimer: number | null = null
 
 type Mode = 'home' | 'wechatUnbound' | 'accountLogin' | 'register' | 'wechatRegister' | 'bind' | 'registered'
 
-function wxLogin(): Promise<string> {
+/**
+ * Calls the official Mini Program login API for a one-time credential.
+ * The credential is never cached because WeChat permits it to be used once.
+ */
+function getWechatLoginCode(): Promise<string> {
   return new Promise((resolve, reject) => {
     wx.login({
       success: (res) => {
         if (res.code) resolve(res.code)
-        else reject(new Error('wx.login 未返回 code'))
+        else reject(new Error('未返回登录凭证，请重试'))
       },
-      fail: () => reject(new Error('wx.login 调用失败')),
+      fail: () => reject(new Error('无法调用快捷登录服务，请稍后重试')),
     })
   })
+}
+
+function isEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}
+
+type PhoneAuthorizationEvent = {
+  detail: {
+    code?: string
+    errMsg?: string
+  }
+}
+
+function getAuthorizedPhoneCode(event: PhoneAuthorizationEvent): string {
+  const code = event.detail && event.detail.code
+  if (code) return code
+  if ((event.detail && event.detail.errMsg || '').includes('deny')) {
+    throw new Error('需要授权手机号才能使用快捷登录')
+  }
+  throw new Error('未获取到手机号授权，请重试')
 }
 
 function toAuthUser(result: AuthResult): AuthUser {
@@ -63,8 +89,10 @@ Page({
     regConfirm: '',
     regName: '',
     regPhone: '',
-    countries: COUNTRIES,
-    countryIndex: 0,
+    authorizingRegisterPhone: false,
+    regionColumns: [REGIONS, CHINA_REGIONS[REGIONS[0]]],
+    regionIndexes: [0, 0],
+    regionDisplay: regionValue(REGIONS[0], CHINA_REGIONS[REGIONS[0]][0]),
   },
 
   onShow() {
@@ -73,17 +101,18 @@ Page({
     }
   },
 
-  async handleWechatLogin() {
+  async handleWechatLogin(event: PhoneAuthorizationEvent) {
     if (this.data.loading) return
     this.setData({ loading: true, error: '' })
     try {
-      const code = await wxLogin()
-      const result = await wechatLogin(code)
+      const phoneCode = getAuthorizedPhoneCode(event)
+      const code = await getWechatLoginCode()
+      const result = await wechatLogin(code, phoneCode)
       if (result.bound && result.token) {
         saveAuth(result.token, toAuthUser(result))
         wx.reLaunch({ url: '/pages/dashboard/dashboard' })
       } else {
-        this.setData({ mode: 'wechatUnbound' })
+        this.setData({ mode: 'wechatUnbound', error: '' })
       }
     } catch (e) {
       this.setData({ error: (e as Error).message || '登录失败' })
@@ -101,7 +130,7 @@ Page({
   },
 
   goRegister() {
-    this.setData({ mode: 'register', error: '' })
+    this.setData({ mode: 'register', error: '', regPhone: '' })
   },
 
   goWechatUnbound() {
@@ -148,14 +177,53 @@ Page({
     this.setData({ showRegConfirm: !this.data.showRegConfirm })
   },
 
-  handleCountryChange(e: WechatMiniprogram.PickerChange) {
-    this.setData({ countryIndex: Number(e.detail.value) })
+  handleRegionColumnChange(e: WechatMiniprogram.PickerColumnChange) {
+    const { column, value } = e.detail
+    const [provinceIndex] = this.data.regionIndexes
+    if (column === 0) {
+      const province = REGIONS[value]
+      const city = CHINA_REGIONS[province][0]
+      this.setData({
+        regionColumns: [REGIONS, CHINA_REGIONS[province]],
+        regionIndexes: [value, 0],
+        regionDisplay: regionValue(province, city),
+      })
+      return
+    }
+    const province = REGIONS[provinceIndex]
+    const city = CHINA_REGIONS[province][value]
+    this.setData({ regionIndexes: [provinceIndex, value], regionDisplay: regionValue(province, city) })
+  },
+
+  handleRegionChange(e: WechatMiniprogram.PickerChange) {
+    const [provinceIndex, cityIndex] = e.detail.value as number[]
+    const province = REGIONS[provinceIndex]
+    const city = CHINA_REGIONS[province][cityIndex]
+    this.setData({ regionIndexes: [provinceIndex, cityIndex], regionDisplay: regionValue(province, city) })
+  },
+
+  async handleAuthorizeRegisterPhone(event: PhoneAuthorizationEvent) {
+    if (this.data.authorizingRegisterPhone) return
+    this.setData({ authorizingRegisterPhone: true, error: '' })
+    try {
+      const phoneCode = getAuthorizedPhoneCode(event)
+      const { phone } = await getWechatPhone(phoneCode)
+      this.setData({ regPhone: phone })
+    } catch (e) {
+      this.setData({ error: (e as Error).message || '手机号授权失败' })
+    } finally {
+      this.setData({ authorizingRegisterPhone: false })
+    }
   },
 
   async handleAccountLogin() {
     const { identifier, password } = this.data
     if (!identifier.trim() || !password) {
-      this.setData({ error: '请输入邮箱/会员号和密码' })
+      this.setData({ error: '请输入邮箱和密码' })
+      return
+    }
+    if (!isEmail(identifier.trim())) {
+      this.setData({ error: '请输入有效的邮箱地址' })
       return
     }
     if (this.data.loading) return
@@ -175,17 +243,24 @@ Page({
     }
   },
 
-  async handleBind() {
+  async handleBind(event: PhoneAuthorizationEvent) {
     const { identifier, password } = this.data
     if (!identifier.trim() || !password) {
-      this.setData({ error: '请输入邮箱/会员号和密码' })
+      this.setData({ error: '请输入邮箱和密码' })
+      return
+    }
+    if (!isEmail(identifier.trim())) {
+      this.setData({ error: '请输入有效的邮箱地址' })
       return
     }
     if (this.data.loading) return
     this.setData({ loading: true, error: '' })
     try {
-      const code = await wxLogin()
-      const result = await wechatBind(code, identifier.trim(), password)
+      const phoneCode = getAuthorizedPhoneCode(event)
+      // The code used to identify an unbound WeChat account was already
+      // consumed. Binding therefore requests a new official login code.
+      const code = await getWechatLoginCode()
+      const result = await wechatBind(code, phoneCode, identifier.trim(), password)
       if (result.bound && result.token) {
         saveAuth(result.token, toAuthUser(result))
         wx.reLaunch({ url: '/pages/dashboard/dashboard' })
@@ -199,10 +274,14 @@ Page({
     }
   },
 
-  validateRegister(): boolean {
+  validateRegister(requireManualPhone = true): boolean {
     const { regEmail, regPassword, regConfirm, regName, regPhone } = this.data
-    if (!regEmail.trim() || !regPassword || !regName.trim() || !regPhone.trim()) {
+    if (!regEmail.trim() || !regPassword || !regName.trim() || (requireManualPhone && !regPhone.trim())) {
       this.setData({ error: '请填写所有必填项' })
+      return false
+    }
+    if (!isEmail(regEmail.trim())) {
+      this.setData({ error: '请输入有效的邮箱地址' })
       return false
     }
     if (regPassword.length < 8) {
@@ -217,12 +296,14 @@ Page({
   },
 
   registerPayload() {
-    const { regEmail, regPassword, regName, regPhone, countries, countryIndex } = this.data
+    const { regEmail, regPassword, regName, regPhone, regionDisplay } = this.data
     return {
       email: regEmail.trim(),
       password: regPassword,
       name: regName.trim(),
-      country: countries[countryIndex] || 'CN',
+      // `country` is retained as the API field name; seller accounts store a
+      // mainland-China province/city value here as their operating region.
+      country: regionDisplay,
       phone: regPhone.trim(),
     }
   },
@@ -248,16 +329,19 @@ Page({
     }
   },
 
-  async handleWechatRegister() {
-    if (!this.validateRegister()) return
+  async handleWechatRegister(event: PhoneAuthorizationEvent) {
+    if (!this.validateRegister(false)) return
     if (this.data.loading) return
     this.setData({ loading: true, error: '' })
     try {
-      const code = await wxLogin()
-      const res = await wechatRegister({ ...this.registerPayload(), code })
+      const phoneCode = getAuthorizedPhoneCode(event)
+      // Registration also needs a fresh, single-use WeChat credential. The
+      // server creates the email account and WeChat binding in one operation.
+      const code = await getWechatLoginCode()
+      const res = await wechatRegister({ ...this.registerPayload(), code, phone_code: phoneCode })
       this.setData({
         mode: 'registered',
-        registeredMessage: res.message || '注册成功，请查收验证邮件',
+        registeredMessage: res.message || '邮箱账号已注册并完成绑定，请查收验证邮件',
         registeredEmail: this.data.regEmail.trim(),
         resendMessage: '',
         resendCooldown: 0,
