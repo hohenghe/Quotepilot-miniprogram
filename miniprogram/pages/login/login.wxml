@@ -1,4 +1,8 @@
 <view class="page">
+  <view wx:if="{{mode === 'home'}}" class="brand">
+    <image class="brand-logo" src="/images/zhermai-logo.png" mode="widthFix" />
+  </view>
+
   <block wx:if="{{mode === 'home'}}">
     <button class="btn phone-login" open-type="getPhoneNumber" bindgetphonenumber="handleWechatLogin" loading="{{loading}}" disabled="{{loading}}">手机号快捷登录</button>
     <button class="btn secondary" bindtap="goAccountLogin">邮箱登录</button>
