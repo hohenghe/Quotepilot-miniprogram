@@ -1,6 +1,6 @@
 <view class="page">
   <view wx:if="{{mode === 'home'}}" class="brand">
-    <image class="brand-logo" src="/images/zhermai-logo.png" mode="widthFix" />
+    <image class="brand-logo" src="/images/zhermai-logo.png" mode="aspectFill" />
   </view>
 
   <block wx:if="{{mode === 'home'}}">

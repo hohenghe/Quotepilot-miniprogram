@@ -10,7 +10,7 @@
 
   <block wx:else>
     <view class="header">
-      <image class="header-logo" src="/images/zhermai-logo.png" mode="widthFix" />
+      <image class="header-logo" src="/images/zhermai-logo.png" mode="aspectFill" />
       <text class="store-name">{{storeName}}</text>
       <text class="uid">会员号 {{uid}}</text>
     </view>
