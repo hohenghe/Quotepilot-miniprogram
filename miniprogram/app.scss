@@ -4,3 +4,15 @@ page {
   font-size: 28rpx;
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
+
+.guest-intro {
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  border: 1rpx solid #bfdbfe;
+  border-radius: 20rpx;
+  background: #eff6ff;
+  color: #334155;
+  line-height: 1.8;
+}
+.guest-intro text { display: block; margin-bottom: 20rpx; }
+.guest-intro button { margin-right: 16rpx; color: #1d4ed8; }

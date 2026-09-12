@@ -1,0 +1,8 @@
+.guide { padding: 32rpx; color: #1e293b; padding-bottom: 64rpx; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 20rpx; position: sticky; top: 0; background: #f5f6f8; padding: 16rpx 0; z-index: 1; font-size: 36rpx; font-weight: 600; }
+.top button { flex-shrink: 0; margin: 0; color: #2563eb; font-size: 26rpx; }
+.intro { font-size: 28rpx; line-height: 1.8; margin: 20rpx 0 32rpx; color: #64748b; }
+.card { background: white; border: 1rpx solid #e2e8f0; border-radius: 20rpx; padding: 28rpx; margin-bottom: 24rpx; }
+.card text { display: block; font-size: 28rpx; line-height: 1.9; margin-top: 16rpx; }
+.card .title { margin-top: 0; font-size: 32rpx; font-weight: 600; color: #1d4ed8; }
+.done { background: #2563eb; color: white; font-size: 30rpx; }

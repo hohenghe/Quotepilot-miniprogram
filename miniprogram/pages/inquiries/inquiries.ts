@@ -1,3 +1,4 @@
+import { promptLogin, openTutorial, resumeVisitorTimer, pauseVisitorTimer } from '../../utils/visitor'
 import { getToken } from '../../utils/auth'
 import { getSellerInquiries, generateSellerReply } from '../../services/seller'
 import { SellerInquiryItem } from '../../types/inquiry'
@@ -38,6 +39,7 @@ function toDisplay(it: SellerInquiryItem): InquiryDisplayItem {
 
 Page({
   data: {
+    guest: false,
     items: [] as InquiryDisplayItem[],
     page: 1,
     total: 0,
@@ -48,15 +50,21 @@ Page({
     generatingId: null as number | null,
   },
 
+  onHide() { pauseVisitorTimer() },
+  goTutorial() { openTutorial() },
+  requestLogin() { promptLogin() },
   onShow() {
+    resumeVisitorTimer()
     if (!getToken()) {
-      wx.reLaunch({ url: '/pages/login/login' })
+      this.setData({ guest: true, loading: false, error: '', items: [], total: 0, hasNext: false })
       return
     }
+    this.setData({ guest: false })
     this.loadInquiries(true)
   },
 
   async loadInquiries(reset: boolean) {
+    if (!getToken()) return
     if (this.data.loading || this.data.loadingMore) return
     if (reset) {
       this.setData({ loading: true, error: '', page: 1 })
@@ -101,6 +109,7 @@ Page({
   },
 
   async handleGenerateReply(e: WechatMiniprogram.TouchEvent) {
+    if (!promptLogin()) return
     const id = Number(e.currentTarget.dataset.id)
     if (this.data.generatingId === id) return
     this.setData({ generatingId: id })

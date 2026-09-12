@@ -1,3 +1,4 @@
+import { promptLogin, openTutorial, resumeVisitorTimer, pauseVisitorTimer } from '../../utils/visitor'
 import { getToken } from '../../utils/auth'
 import {
   getSellerProducts,
@@ -48,6 +49,7 @@ function toDisplay(p: SellerProduct): ProductDisplayItem {
 
 Page({
   data: {
+    guest: false,
     products: [] as ProductDisplayItem[],
     total: 0,
     page: 1,
@@ -64,11 +66,16 @@ Page({
     loaded: false,
   },
 
+  onHide() { pauseVisitorTimer() },
+  goTutorial() { openTutorial() },
+  requestLogin() { promptLogin() },
   onShow() {
+    resumeVisitorTimer()
     if (!getToken()) {
-      wx.reLaunch({ url: '/pages/login/login' })
+      this.setData({ guest: true, loading: false, error: '', products: [], total: 0, hasNext: false, selecting: false, loaded: false })
       return
     }
+    this.setData({ guest: false })
     if (this.data.loaded) {
       this.refreshCurrentPage()
     } else {
@@ -78,6 +85,7 @@ Page({
   },
 
   async loadProducts(reset: boolean) {
+    if (!getToken()) return
     if (this.data.loading || this.data.loadingMore) return
     if (reset) {
       this.setData({ loading: true, error: '', page: 1 })
@@ -114,6 +122,7 @@ Page({
   },
 
   async refreshCurrentPage() {
+    if (!getToken()) return
     if (this.data.loading || this.data.loadingMore) return
     const page = this.data.page
     const keyword = this.data.keyword.trim()
@@ -153,6 +162,7 @@ Page({
   },
 
   goCreate() {
+    if (!promptLogin()) return
     wx.navigateTo({ url: '/pages/product-edit/product-edit' })
   },
 
@@ -166,10 +176,12 @@ Page({
   },
 
   navigateToEdit(id: number) {
+    if (!promptLogin()) return
     wx.navigateTo({ url: `/pages/product-edit/product-edit?id=${id}` })
   },
 
   toggleSelectMode() {
+    if (!promptLogin()) return
     const selecting = !this.data.selecting
     const products = this.data.products.map((p) => ({ ...p, selected: false }))
     this.setData({ selecting, products, selectedCount: 0, allSelected: false })
@@ -192,6 +204,7 @@ Page({
   },
 
   handleBatchDelete() {
+    if (!promptLogin()) return
     const ids = this.data.products.filter((p) => p.selected).map((p) => p.id)
     if (ids.length === 0) return
     wx.showModal({
@@ -217,6 +230,7 @@ Page({
   },
 
   handleImportFile() {
+    if (!promptLogin()) return
     wx.chooseMessageFile({
       count: 1,
       type: 'file',

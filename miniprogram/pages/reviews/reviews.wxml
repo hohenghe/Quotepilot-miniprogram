@@ -1,4 +1,5 @@
 <view class="page">
+  <view wx:if="{{guest}}" class="guest-intro"><text>评价管理：登录后可查看店铺评分、买家评价，并举报不当内容。</text><button size="mini" bindtap="goTutorial">查看教程</button><button size="mini" bindtap="requestLogin">登录体验</button></view>
   <view class="score-card">
     <text class="score-label">店铺评分</text>
     <text class="score-value">{{scoreText}}</text>
@@ -14,8 +15,8 @@
 
     <block wx:elif="{{items.length === 0}}">
       <view class="state">
-        <text class="state-title">暂无评价</text>
-        <text class="state-text">还没有收到买家评价</text>
+        <text class="state-title">{{guest ? '登录后查看买家评价' : '暂无评价'}}</text>
+        <text class="state-text">{{guest ? '这里展示买家反馈，帮助了解店铺服务表现。' : '还没有收到买家评价'}}</text>
       </view>
     </block>
 

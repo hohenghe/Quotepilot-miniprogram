@@ -3,6 +3,14 @@
     <image class="brand-logo" src="/images/zhermai-logo.png" mode="aspectFill" />
   </view>
 
+  <view wx:if="{{mode === 'register' || mode === 'wechatRegister'}}" class="distribution-choice">
+    <text class="distribution-title">是否支持铺货（必选）</text>
+    <radio-group bindchange="handleDistributionChange">
+      <label><radio value="yes" checked="{{supportsDistribution === true}}" disabled="{{loading}}" color="#2563eb" />是</label>
+      <label><radio value="no" checked="{{supportsDistribution === false}}" disabled="{{loading}}" color="#2563eb" />否</label>
+    </radio-group>
+  </view>
+
   <block wx:if="{{mode === 'home'}}">
     <button class="btn phone-login" open-type="getPhoneNumber" bindgetphonenumber="handleWechatLogin" loading="{{loading}}" disabled="{{loading}}">手机号快捷登录</button>
     <button class="btn secondary" bindtap="goAccountLogin">邮箱登录</button>
@@ -72,7 +80,7 @@
         <view class="input picker">地区：{{regionDisplay}}</view>
       </picker>
       <button wx:if="{{mode === 'register'}}" class="btn primary" bindtap="handleRegister" loading="{{loading}}" disabled="{{loading}}">注册</button>
-      <button wx:else class="btn primary" open-type="getPhoneNumber" bindgetphonenumber="handleWechatRegister" loading="{{loading}}" disabled="{{loading}}">授权手机号并注册绑定</button>
+      <button wx:else class="btn primary" open-type="{{supportsDistribution !== null ? 'getPhoneNumber' : ''}}" bindtap="requireDistribution" bindgetphonenumber="handleWechatRegister" loading="{{loading}}" disabled="{{loading}}">授权手机号并注册绑定</button>
       <button class="btn text" bindtap="goHome">返回</button>
     </view>
   </block>
@@ -95,5 +103,6 @@
     </view>
   </block>
 
+  <button class="btn text" bindtap="continueAsGuest" disabled="{{loading}}">暂不登录，继续浏览</button>
   <view wx:if="{{error}}" class="error">{{error}}</view>
 </view>

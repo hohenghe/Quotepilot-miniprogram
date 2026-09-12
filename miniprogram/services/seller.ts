@@ -1,5 +1,11 @@
-import { request, humanizeError } from '../utils/request'
+import { request as apiRequest, humanizeError } from '../utils/request'
 import { getToken, logout } from '../utils/auth'
+import { promptLogin } from '../utils/visitor'
+
+function request<T = any>(path: string, options?: Parameters<typeof apiRequest>[1]): Promise<T> {
+  if (!promptLogin()) return Promise.reject(new Error('请先登录后再使用此功能'))
+  return apiRequest<T>(path, options)
+}
 import { API_BASE_URL } from '../config/index'
 import {
   ProductListResult,
@@ -128,6 +134,7 @@ function extractUploadDetail(raw: string): string {
 }
 
 function uploadFile<T = any>(path: string, filePath: string, formData?: Record<string, string>): Promise<T> {
+  if (!promptLogin()) return Promise.reject(new Error('请先登录后再上传'))
   const token = getToken()
   const header: Record<string, string> = {}
   if (token) {
@@ -151,11 +158,7 @@ function uploadFile<T = any>(path: string, filePath: string, formData?: Record<s
         }
         if (res.statusCode === 401) {
           logout()
-          const pages = getCurrentPages()
-          const current = pages.length > 0 ? pages[pages.length - 1].route : ''
-          if (current !== 'pages/login/login') {
-            wx.reLaunch({ url: '/pages/login/login' })
-          }
+          promptLogin()
         }
         reject(new Error(humanizeError(res.statusCode, extractUploadDetail(res.data))))
       },

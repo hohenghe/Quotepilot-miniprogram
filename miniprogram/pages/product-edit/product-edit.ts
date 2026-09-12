@@ -1,3 +1,4 @@
+import { promptLogin } from '../../utils/visitor'
 import { getToken } from '../../utils/auth'
 import { getSellerProduct, createSellerProduct, updateSellerProduct, deleteSellerProduct, uploadProductImage, recognizeProductImage } from '../../services/seller'
 import { ProductPayload, AIRecognizedFields } from '../../types/product'
@@ -53,7 +54,7 @@ Page({
 
   onLoad(options: Record<string, string | undefined>) {
     if (!getToken()) {
-      wx.reLaunch({ url: '/pages/login/login' })
+      promptLogin()
       return
     }
     const id = options.id ? Number(options.id) : null
@@ -103,6 +104,7 @@ Page({
   },
 
   handleChooseImage() {
+    if (!promptLogin()) return
     const remaining = MAX_IMAGES - this.data.images.length
     if (remaining <= 0) {
       wx.showToast({ title: '最多上传 10 张图片', icon: 'none' })
@@ -171,6 +173,7 @@ Page({
   },
 
   handleChooseAiImage() {
+    if (!promptLogin()) return
     if (this.data.recognizing) return
     wx.chooseMedia({
       count: 1,
@@ -187,6 +190,7 @@ Page({
   },
 
   async handleRecognize(filePath: string) {
+    if (!promptLogin()) return
     if (this.data.recognizing) return
     this.setData({ recognizing: true })
     try {
@@ -229,6 +233,7 @@ Page({
   },
 
   async handleSave() {
+    if (!promptLogin()) return
     if (!this.data.name.trim()) {
       wx.showToast({ title: '请填写商品名称', icon: 'none' })
       return
@@ -253,6 +258,7 @@ Page({
   },
 
   handleDelete() {
+    if (!promptLogin()) return
     const id = this.data.id
     if (!id) return
     wx.showModal({

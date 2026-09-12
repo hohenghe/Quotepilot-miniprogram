@@ -1,4 +1,5 @@
 <view class="page">
+  <view wx:if="{{guest}}" class="guest-intro"><text>询盘管理：登录后可查看买家采购需求、生成 AI 回复草稿并复制使用。</text><button size="mini" bindtap="goTutorial">查看教程</button><button size="mini" bindtap="requestLogin">登录体验</button></view>
   <view wx:if="{{loading}}" class="hint">加载中…</view>
 
   <block wx:else>
@@ -9,8 +10,8 @@
 
     <block wx:elif="{{items.length === 0}}">
       <view class="state">
-        <text class="state-title">暂无询盘</text>
-        <text class="state-text">还没有收到任何买家询盘</text>
+        <text class="state-title">{{guest ? '登录后查看店铺询盘' : '暂无询盘'}}</text>
+        <text class="state-text">{{guest ? '买家发送采购需求后，可在这里跟进并生成回复。' : '还没有收到任何买家询盘'}}</text>
       </view>
     </block>
 

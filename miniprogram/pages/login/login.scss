@@ -227,3 +227,7 @@
   color: $color-success;
   text-align: center;
 }
+.distribution-choice { width: 100%; max-width: 520rpx; margin-bottom: 28rpx; padding: 24rpx; box-sizing: border-box; background: #fff; border: 1rpx solid #e2e8f0; border-radius: 16rpx; }
+.distribution-title { display: block; font-size: 28rpx; font-weight: 600; margin-bottom: 20rpx; }
+.distribution-choice radio-group { display: flex; gap: 64rpx; }
+.distribution-choice label { display: flex; align-items: center; gap: 12rpx; }

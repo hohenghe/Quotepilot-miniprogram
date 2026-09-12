@@ -1,3 +1,4 @@
+import { promptLogin, openTutorial, resumeVisitorTimer, pauseVisitorTimer } from '../../utils/visitor'
 import { getToken } from '../../utils/auth'
 import { getMySellerReviews, reportReview } from '../../services/seller'
 import { ReviewItem } from '../../types/review'
@@ -34,6 +35,7 @@ function toDisplay(it: ReviewItem): ReviewDisplayItem {
 
 Page({
   data: {
+    guest: false,
     scoreText: '暂无评分',
     items: [] as ReviewDisplayItem[],
     loading: false,
@@ -41,15 +43,21 @@ Page({
     reportingId: null as number | null,
   },
 
+  onHide() { pauseVisitorTimer() },
+  goTutorial() { openTutorial() },
+  requestLogin() { promptLogin() },
   onShow() {
+    resumeVisitorTimer()
     if (!getToken()) {
-      wx.reLaunch({ url: '/pages/login/login' })
+      this.setData({ guest: true, loading: false, error: '', items: [], scoreText: '登录后查看评分' })
       return
     }
+    this.setData({ guest: false })
     this.loadReviews()
   },
 
   async loadReviews() {
+    if (!getToken()) return
     this.setData({ loading: true, error: '' })
     try {
       const res = await getMySellerReviews()
@@ -73,6 +81,7 @@ Page({
   },
 
   handleReport(e: WechatMiniprogram.TouchEvent) {
+    if (!promptLogin()) return
     const id = Number(e.currentTarget.dataset.id)
     if (this.data.reportingId != null) return
     wx.showModal({

@@ -1,4 +1,5 @@
 <view class="page">
+  <view wx:if="{{guest}}" class="guest-intro"><text>商品管理：支持手动新增、拍照识别及文件批量导入。登录后才能上传和管理自己的商品。</text><button size="mini" bindtap="goTutorial">查看教程</button><button size="mini" bindtap="requestLogin">登录体验</button></view>
   <view class="search">
     <input
       class="search-input"
@@ -27,8 +28,8 @@
 
     <block wx:elif="{{products.length === 0}}">
       <view class="state">
-        <text class="state-title">暂无商品</text>
-        <text class="state-text">{{keyword ? '没有找到匹配的商品' : '还没有添加任何商品'}}</text>
+        <text class="state-title">{{guest ? '登录后查看自己的商品' : '暂无商品'}}</text>
+        <text class="state-text">{{guest ? '这里可以搜索、编辑和管理商品；游客不会加载店铺数据。' : (keyword ? '没有找到匹配的商品' : '还没有添加任何商品')}}</text>
         <button wx:if="{{!keyword}}" class="btn primary" bindtap="goCreate">新增商品</button>
       </view>
     </block>

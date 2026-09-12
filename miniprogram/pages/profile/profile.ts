@@ -1,3 +1,4 @@
+import { promptLogin, openTutorial, resumeVisitorTimer, pauseVisitorTimer } from '../../utils/visitor'
 import { getToken, logout } from '../../utils/auth'
 import { getMe, updateProfile, uploadAvatarImage, uploadLicenseImage } from '../../services/seller'
 import { UpdateProfilePayload } from '../../types/user'
@@ -7,6 +8,7 @@ const REGIONS = CHINA_PROVINCES
 
 Page({
   data: {
+    guest: false,
     loading: false,
     saving: false,
     uploadingAvatar: false,
@@ -23,15 +25,22 @@ Page({
     licenseUrl: '',
   },
 
+  onHide() { pauseVisitorTimer() },
+  goTutorial() { openTutorial() },
+  requestLogin() { promptLogin() },
+  onLoad() { if (!getToken()) promptLogin() },
   onShow() {
+    resumeVisitorTimer()
     if (!getToken()) {
-      wx.reLaunch({ url: '/pages/login/login' })
+      this.setData({ guest: true, loading: false, email: '', uid: '', avatarUrl: '', licenseUrl: '' })
       return
     }
+    this.setData({ guest: false })
     this.loadProfile()
   },
 
   async loadProfile() {
+    if (!getToken()) return
     this.setData({ loading: true })
     try {
       const me = await getMe()
@@ -88,6 +97,7 @@ Page({
   },
 
   handleChooseAvatar() {
+    if (!promptLogin()) return
     wx.chooseImage({
       count: 1,
       sizeType: ['compressed'],
@@ -114,6 +124,7 @@ Page({
   },
 
   handleChooseLicense() {
+    if (!promptLogin()) return
     wx.chooseImage({
       count: 1,
       sizeType: ['compressed'],
@@ -152,6 +163,7 @@ Page({
   },
 
   async handleSave() {
+    if (!promptLogin()) return
     if (this.data.saving) return
     const payload: UpdateProfilePayload = {
       name: this.data.name.trim(),
@@ -180,12 +192,13 @@ Page({
       success: (res) => {
         if (!res.confirm) return
         logout()
-        wx.reLaunch({ url: '/pages/login/login' })
+        wx.reLaunch({ url: '/pages/dashboard/dashboard' })
       },
     })
   },
 
   goChangePassword() {
+    if (!promptLogin()) return
     wx.navigateTo({ url: '/pages/change-password/change-password' })
   },
 })

@@ -1,5 +1,6 @@
 import { API_BASE_URL } from '../config/index'
 import { getToken, logout } from './auth'
+import { promptLogin } from './visitor'
 
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
@@ -61,11 +62,7 @@ export function request<T = any>(path: string, options: RequestOptions = {}): Pr
         }
         if (res.statusCode === 401) {
           logout()
-          const pages = getCurrentPages()
-          const current = pages.length > 0 ? pages[pages.length - 1].route : ''
-          if (current !== 'pages/login/login') {
-            wx.reLaunch({ url: '/pages/login/login' })
-          }
+          promptLogin()
         }
         reject(new Error(humanizeError(res.statusCode, extractDetail(res.data))))
       },

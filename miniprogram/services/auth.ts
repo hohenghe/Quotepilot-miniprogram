@@ -1,6 +1,7 @@
 import { request } from '../utils/request'
 
 export interface AuthResult {
+  supports_distribution: boolean | null
   token: string | null
   user_id: number | null
   email: string | null
@@ -19,6 +20,7 @@ export interface WechatAuthResult extends AuthResult {
 }
 
 export interface RegisterPayload {
+  supports_distribution: boolean
   email: string
   password: string
   name: string

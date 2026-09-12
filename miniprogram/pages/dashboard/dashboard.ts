@@ -1,8 +1,10 @@
 import { getToken } from '../../utils/auth'
+import { needsTutorial, openTutorial, resumeVisitorTimer, pauseVisitorTimer, openGuestLogin } from '../../utils/visitor'
 import { getMe, getSellerProducts, getSellerInquiries, getSellerScore, SellerInquiryItem } from '../../services/seller'
 
 Page({
   data: {
+    guest: false,
     email: '',
     storeName: '',
     uid: '',
@@ -16,16 +18,26 @@ Page({
     inquiries: [] as SellerInquiryItem[],
   },
 
+  onHide() { pauseVisitorTimer() },
   onShow() {
-    if (!getToken()) {
-      wx.reLaunch({ url: '/pages/login/login' })
+    if (needsTutorial()) {
+      this.setData({ loading: false })
+      openTutorial()
       return
     }
+    resumeVisitorTimer()
     this.loadData()
   },
 
+  goTutorial() { openTutorial() },
+  handleHeaderLogin() { openGuestLogin() },
+
   async loadData() {
-    this.setData({ loading: true, error: '' })
+    if (!getToken()) {
+      this.setData({ guest: true, loading: false, error: '', storeName: '欢迎体验这儿卖', uid: '', email: '', productCount: 0, inquiryCount: 0, pendingCount: 0, repliedCount: 0, scoreText: '—', inquiries: [] })
+      return
+    }
+    this.setData({ guest: false, loading: true, error: '' })
     try {
       const [me, products, inquiries, score] = await Promise.all([
         getMe(),

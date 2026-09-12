@@ -1,3 +1,4 @@
+import { pauseVisitorTimer } from '../../utils/visitor'
 import { getToken, saveAuth, AuthUser } from '../../utils/auth'
 import {
   wechatLogin,
@@ -70,6 +71,7 @@ function toAuthUser(result: AuthResult): AuthUser {
 
 Page({
   data: {
+    supportsDistribution: null as boolean | null,
     mode: 'home' as Mode,
     loading: false,
     error: '',
@@ -95,10 +97,27 @@ Page({
     regionDisplay: regionValue(REGIONS[0], CHINA_REGIONS[REGIONS[0]][0]),
   },
 
+  continueAsGuest() {
+    if (this.data.loading) return
+    if (getCurrentPages().length > 1) wx.navigateBack()
+    else wx.reLaunch({ url: '/pages/dashboard/dashboard' })
+  },
+
   onShow() {
+    pauseVisitorTimer()
     if (getToken()) {
       wx.reLaunch({ url: '/pages/dashboard/dashboard' })
     }
+  },
+
+  handleDistributionChange(event: WechatMiniprogram.RadioGroupChange) {
+    this.setData({ supportsDistribution: event.detail.value === 'yes', error: '' })
+  },
+
+  requireDistribution() {
+    if (this.data.supportsDistribution !== null) return true
+    this.setData({ error: '请选择是否支持铺货' })
+    return false
   },
 
   async handleWechatLogin(event: PhoneAuthorizationEvent) {
@@ -275,6 +294,7 @@ Page({
   },
 
   validateRegister(requireManualPhone = true): boolean {
+    if (!this.requireDistribution()) return false
     const { regEmail, regPassword, regConfirm, regName, regPhone } = this.data
     if (!regEmail.trim() || !regPassword || !regName.trim() || (requireManualPhone && !regPhone.trim())) {
       this.setData({ error: '请填写所有必填项' })
@@ -298,6 +318,7 @@ Page({
   registerPayload() {
     const { regEmail, regPassword, regName, regPhone, regionDisplay } = this.data
     return {
+      supports_distribution: this.data.supportsDistribution as boolean,
       email: regEmail.trim(),
       password: regPassword,
       name: regName.trim(),

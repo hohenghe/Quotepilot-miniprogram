@@ -1,3 +1,4 @@
+import { promptLogin } from '../../utils/visitor'
 import { getToken, saveAuth, AuthUser } from '../../utils/auth'
 import { changePassword, AuthResult } from '../../services/auth'
 
@@ -29,7 +30,7 @@ Page({
 
   onLoad() {
     if (!getToken()) {
-      wx.reLaunch({ url: '/pages/login/login' })
+      promptLogin()
     }
   },
 
@@ -51,6 +52,7 @@ Page({
   },
 
   async handleSubmit() {
+    if (!promptLogin()) return
     const { currentPassword, newPassword, confirmPassword } = this.data
     if (!currentPassword) {
       wx.showToast({ title: '请输入当前密码', icon: 'none' })
