@@ -203,7 +203,7 @@ Page({
     if (column !== 0 && column !== 1) return
     if (column === 0) {
       const province = REGIONS[value]
-      if (!province || !CHINA_REGIONS[province]?.length) return
+      if (!province || !CHINA_REGIONS[province] || !CHINA_REGIONS[province].length) return
       const city = CHINA_REGIONS[province][0]
       this.setData({
         regionColumns: [REGIONS, CHINA_REGIONS[province]],
@@ -213,7 +213,7 @@ Page({
       return
     }
     const province = REGIONS[provinceIndex]
-    if (!CHINA_REGIONS[province]?.[value]) return
+    if (!CHINA_REGIONS[province] || !CHINA_REGIONS[province][value]) return
     const city = CHINA_REGIONS[province][value]
     this.setData({ regionIndexes: [provinceIndex, value], regionDisplay: regionValue(province, city) })
   },
@@ -223,7 +223,7 @@ Page({
     const [provinceIndex, cityIndex] = e.detail.value as number[]
     if (!Number.isInteger(provinceIndex) || !Number.isInteger(cityIndex)) return
     const province = REGIONS[provinceIndex]
-    if (!CHINA_REGIONS[province]?.[cityIndex]) return
+    if (!CHINA_REGIONS[province] || !CHINA_REGIONS[province][cityIndex]) return
     const city = CHINA_REGIONS[province][cityIndex]
     this.setData({ regionIndexes: [provinceIndex, cityIndex], regionDisplay: regionValue(province, city) })
   },

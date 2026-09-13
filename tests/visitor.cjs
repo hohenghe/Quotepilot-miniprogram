@@ -55,6 +55,26 @@ function harness() {
 }
 
 async function main() {
+  // The WeChat upload validator rejects optional chaining/nullish coalescing
+  // retained by the project's ES2020 compilation target.
+  function checkUploadSyntax(directory) {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const file = path.join(directory, entry.name)
+      if (entry.isDirectory()) { checkUploadSyntax(file); continue }
+      if (!/\.(ts|js)$/.test(entry.name) || entry.name.endsWith('.d.ts')) continue
+      const output = ts.transpileModule(fs.readFileSync(file, 'utf8'), {
+        compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+      }).outputText
+      const syntax = ts.createSourceFile(file + '.js', output, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+      function visit(node) {
+        assert.ok(!node.questionDotToken, file + ': optional chaining is unsupported during upload')
+        assert.notEqual(node.kind, ts.SyntaxKind.QuestionQuestionToken, file + ': nullish coalescing is unsupported during upload')
+        ts.forEachChild(node, visit)
+      }
+      visit(syntax)
+    }
+  }
+  checkUploadSyntax(root)
   let h = harness(), visitor = h.load('utils/visitor.ts')
   const dashboard = h.loadPage('dashboard')
   dashboard.onShow()

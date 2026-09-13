@@ -199,7 +199,7 @@ Page({
     this.setData({ recognizing: true })
     try {
       const res = await recognizeProductImage(filePath)
-      if (res?.success && res.data) {
+      if (res && res.success && res.data) {
         this.applyRecognition(res.data)
         this.setData({ aiDone: true })
         wx.showToast({ title: '已识别，请检查参数', icon: 'success' })
