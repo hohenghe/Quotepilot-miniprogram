@@ -199,8 +199,11 @@ Page({
   handleRegionColumnChange(e: WechatMiniprogram.PickerColumnChange) {
     const { column, value } = e.detail
     const [provinceIndex] = this.data.regionIndexes
+    if (!Number.isInteger(value) || value < 0) return
+    if (column !== 0 && column !== 1) return
     if (column === 0) {
       const province = REGIONS[value]
+      if (!province || !CHINA_REGIONS[province]?.length) return
       const city = CHINA_REGIONS[province][0]
       this.setData({
         regionColumns: [REGIONS, CHINA_REGIONS[province]],
@@ -210,13 +213,17 @@ Page({
       return
     }
     const province = REGIONS[provinceIndex]
+    if (!CHINA_REGIONS[province]?.[value]) return
     const city = CHINA_REGIONS[province][value]
     this.setData({ regionIndexes: [provinceIndex, value], regionDisplay: regionValue(province, city) })
   },
 
   handleRegionChange(e: WechatMiniprogram.PickerChange) {
+    if (!Array.isArray(e.detail.value)) return
     const [provinceIndex, cityIndex] = e.detail.value as number[]
+    if (!Number.isInteger(provinceIndex) || !Number.isInteger(cityIndex)) return
     const province = REGIONS[provinceIndex]
+    if (!CHINA_REGIONS[province]?.[cityIndex]) return
     const city = CHINA_REGIONS[province][cityIndex]
     this.setData({ regionIndexes: [provinceIndex, cityIndex], regionDisplay: regionValue(province, city) })
   },
@@ -238,11 +245,7 @@ Page({
   async handleAccountLogin() {
     const { identifier, password } = this.data
     if (!identifier.trim() || !password) {
-      this.setData({ error: '请输入邮箱和密码' })
-      return
-    }
-    if (!isEmail(identifier.trim())) {
-      this.setData({ error: '请输入有效的邮箱地址' })
+      this.setData({ error: '请输入账号和密码' })
       return
     }
     if (this.data.loading) return
@@ -265,11 +268,7 @@ Page({
   async handleBind(event: PhoneAuthorizationEvent) {
     const { identifier, password } = this.data
     if (!identifier.trim() || !password) {
-      this.setData({ error: '请输入邮箱和密码' })
-      return
-    }
-    if (!isEmail(identifier.trim())) {
-      this.setData({ error: '请输入有效的邮箱地址' })
+      this.setData({ error: '请输入账号和密码' })
       return
     }
     if (this.data.loading) return

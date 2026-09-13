@@ -40,8 +40,9 @@
             bindtap="handleGenerateReply"
             data-id="{{item.id}}"
             loading="{{generatingId === item.id}}"
-            disabled="{{generatingId === item.id}}"
+            disabled="{{generatingId !== null}}"
           >{{generatingId === item.id ? '生成中…' : '生成 AI 回复'}}</button>
+          <text class="ai-disclaimer">内容由 AI 生成，仅供参考</text>
         </view>
       </view>
 

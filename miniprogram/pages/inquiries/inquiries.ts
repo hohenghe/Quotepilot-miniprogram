@@ -111,7 +111,7 @@ Page({
   async handleGenerateReply(e: WechatMiniprogram.TouchEvent) {
     if (!promptLogin()) return
     const id = Number(e.currentTarget.dataset.id)
-    if (this.data.generatingId === id) return
+    if (this.data.generatingId !== null) return
     this.setData({ generatingId: id })
     try {
       const res = await generateSellerReply(id)

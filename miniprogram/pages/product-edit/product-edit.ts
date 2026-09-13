@@ -100,11 +100,13 @@ Page({
 
   handleCategoryChange(e: WechatMiniprogram.PickerChange) {
     const index = Number(e.detail.value)
+    if (!Number.isInteger(index) || !this.data.categories[index]) return
     this.setData({ categoryIndex: index, category: this.data.categories[index] })
   },
 
   handleChooseImage() {
     if (!promptLogin()) return
+    if (this.data.uploading || this.data.recognizing || this.data.saving) return
     const remaining = MAX_IMAGES - this.data.images.length
     if (remaining <= 0) {
       wx.showToast({ title: '最多上传 10 张图片', icon: 'none' })
@@ -121,11 +123,11 @@ Page({
   },
 
   async uploadImages(paths: string[]) {
-    if (this.data.uploading) return
+    if (this.data.uploading || this.data.recognizing || this.data.saving) return
     this.setData({ uploading: true })
     const images = this.data.images.slice()
     try {
-      for (const p of paths) {
+      for (const p of paths.slice(0, MAX_IMAGES - images.length)) {
         const res = await uploadProductImage(p)
         images.push(res.url)
       }
@@ -147,8 +149,10 @@ Page({
   },
 
   handleRemoveImage(e: WechatMiniprogram.TouchEvent) {
+    if (this.data.uploading || this.data.recognizing || this.data.saving) return
     const index = Number(e.currentTarget.dataset.index)
     const images = this.data.images.slice()
+    if (!Number.isInteger(index) || index < 0 || index >= images.length) return
     images.splice(index, 1)
     this.setData({ images })
   },
@@ -174,7 +178,7 @@ Page({
 
   handleChooseAiImage() {
     if (!promptLogin()) return
-    if (this.data.recognizing) return
+    if (this.data.recognizing || this.data.uploading || this.data.saving) return
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
@@ -191,11 +195,11 @@ Page({
 
   async handleRecognize(filePath: string) {
     if (!promptLogin()) return
-    if (this.data.recognizing) return
+    if (this.data.recognizing || this.data.uploading || this.data.saving) return
     this.setData({ recognizing: true })
     try {
       const res = await recognizeProductImage(filePath)
-      if (res.success && res.data) {
+      if (res?.success && res.data) {
         this.applyRecognition(res.data)
         this.setData({ aiDone: true })
         wx.showToast({ title: '已识别，请检查参数', icon: 'success' })
@@ -238,7 +242,7 @@ Page({
       wx.showToast({ title: '请填写商品名称', icon: 'none' })
       return
     }
-    if (this.data.saving) return
+    if (this.data.saving || this.data.uploading || this.data.recognizing) return
     this.setData({ saving: true })
     try {
       if (this.data.id) {

@@ -150,6 +150,59 @@ async function main() {
   await sellerLogin.handleAccountLogin()
   assert.equal(h.state.requests, 1, 'email login no longer requires a distribution choice')
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'app.json'), 'utf8'))
+  for (const name of ['login', 'profile']) {
+    const regionPage = harness().loadPage(name)
+    const before = JSON.stringify(regionPage.data)
+    for (const value of [-1, 9999, NaN, 0.5]) {
+      regionPage.handleRegionColumnChange({ detail: { column: 0, value } })
+      regionPage.handleRegionColumnChange({ detail: { column: 1, value } })
+      regionPage.handleRegionChange({ detail: { value: [value, value] } })
+    }
+    regionPage.handleRegionChange({ detail: { value: null } })
+    assert.equal(JSON.stringify(regionPage.data), before, name + ': invalid region indices must not change selection')
+  }
+  const boundsEditor = harness().loadPage('product-edit')
+  boundsEditor.setData({ images: ['first', 'last'] })
+  for (const index of [-1, 9999, NaN, 0.5]) {
+    boundsEditor.handleRemoveImage({ currentTarget: { dataset: { index } } })
+    boundsEditor.handleCategoryChange({ detail: { value: index } })
+  }
+  assert.equal(boundsEditor.data.images.join(','), 'first,last', 'invalid image index must not delete another image')
+  assert.equal(boundsEditor.data.category, 'other')
+  h = harness(); const reviewLogin = h.loadPage('login')
+  reviewLogin.setData({ identifier: 'wechat@test', password: 'password1' })
+  await reviewLogin.handleAccountLogin()
+  assert.equal(h.state.requests, 1, 'admin-created identifiers reach the login API')
+
+  h = harness(); h.storage.set('quotepilot_token', 'test-token')
+  const busyEditor = h.loadPage('product-edit')
+  busyEditor.setData({ name: 'Product', images: ['existing'] })
+  for (const flag of ['uploading', 'recognizing', 'saving']) {
+    busyEditor.setData({ [flag]: true })
+    await busyEditor.handleSave()
+    busyEditor.handleChooseAiImage()
+    busyEditor.handleChooseImage()
+    busyEditor.handleRemoveImage({ currentTarget: { dataset: { index: 0 } } })
+    assert.equal(busyEditor.data.images.length, 1, 'busy editor preserves images')
+    busyEditor.setData({ [flag]: false })
+  }
+  assert.equal(h.state.requests + h.state.uploads + h.state.choices, 0, 'busy editor blocks conflicting operations')
+  await busyEditor.handleSave()
+  assert.equal(h.state.requests, 1, 'save resumes after processing finishes')
+
+  h = harness(); h.storage.set('quotepilot_token', 'test-token')
+  const replyPage = h.loadPage('inquiries')
+  const replyEvent = id => ({ currentTarget: { dataset: { id } } })
+  await Promise.all([replyPage.handleGenerateReply(replyEvent(1)), replyPage.handleGenerateReply(replyEvent(2)), replyPage.handleGenerateReply(replyEvent(1))])
+  assert.equal(h.state.requests, 1, 'A/B/A clicks cannot duplicate an in-flight generation')
+  await replyPage.handleGenerateReply(replyEvent(2))
+  assert.equal(h.state.requests, 2, 'generation unlocks after completion')
+
+  h = harness(); h.storage.set('quotepilot_token', 'test-token')
+  const busyProfile = h.loadPage('profile')
+  busyProfile.setData({ uploadingAvatar: true })
+  await busyProfile.handleSave()
+  assert.equal(h.state.requests, 0, 'profile waits for image upload')
   assert.equal(manifest.pages[0], 'pages/dashboard/dashboard')
   for (const route of manifest.pages) {
     for (const extension of ['.ts', '.json', '.wxml']) assert.ok(fs.existsSync(path.join(root, route + extension)), route + extension)

@@ -18,6 +18,9 @@ function extractDetail(data: any): string {
 }
 
 export function humanizeError(statusCode: number, detail: string): string {
+  if (detail.trim().toLowerCase() === 'invalid credentials') {
+    return '账号或密码错误'
+  }
   if (detail) {
     return detail
   }
@@ -32,6 +35,8 @@ export function humanizeError(statusCode: number, detail: string): string {
       return '未找到相关数据'
     case 409:
       return '操作冲突，请稍后重试'
+    case 422:
+      return '填写的信息不符合要求，请检查后重试'
     case 500:
       return '服务器错误，请稍后重试'
     default:
