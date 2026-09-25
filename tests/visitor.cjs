@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '../miniprogram')
 
 function harness() {
   const storage = new Map(), cache = new Map(), timers = new Map()
-  const state = { now: 1000, route: 'pages/dashboard/dashboard', modals: [], navigations: [], requests: 0, uploads: 0, choices: 0 }
+  const state = { now: 1000, route: 'pages/dashboard/dashboard', modals: [], navigations: [], requests: 0, uploads: 0, choices: 0, mediaPath: '', uploadResponse: '{}' }
   let sequence = 0, page
   const wx = {
     getStorageSync: key => storage.get(key),
@@ -18,10 +18,11 @@ function harness() {
     navigateTo: options => { state.navigations.push(options.url); state.route = options.url.slice(1) },
     navigateBack: () => { state.route = 'pages/dashboard/dashboard' },
     reLaunch: options => { state.navigations.push(options.url); state.route = options.url.slice(1) },
-    request: options => { state.requests++; options.success({ statusCode: state.status || 200, data: {} }) },
-    uploadFile: options => { state.uploads++; options.success({ statusCode: state.status || 200, data: '{}' }) },
+    request: options => { state.requests++; options.success({ statusCode: state.status || 200, data: state.response || {} }) },
+    login: options => { options.success({ code: 'wechat-code' }) },
+    uploadFile: options => { state.uploads++; options.success({ statusCode: state.status || 200, data: state.uploadResponse }) },
     chooseImage: () => { state.choices++ },
-    chooseMedia: () => { state.choices++ },
+    chooseMedia: options => { state.choices++; if (state.mediaPath) options.success({ tempFiles: [{ tempFilePath: state.mediaPath }] }) },
     chooseMessageFile: () => { state.choices++ },
     stopPullDownRefresh() {}, setNavigationBarTitle() {}, showToast() {},
   }
@@ -156,9 +157,17 @@ async function main() {
   assert.equal(h.state.modals.length, 0, 'header opens login directly')
   h.state.route = 'pages/dashboard/dashboard'; h.storage.set('quotepilot_token', 'test-token')
   guestHome.handleHeaderLogin(); assert.equal(h.state.navigations.length, 1, 'logged-in header does not open login')
+  h = harness(); h.storage.set('quotepilot_token', 'test-token'); h.state.mediaPath = 'camera-product.jpg'; h.state.uploadResponse = JSON.stringify({ success: true, data: {} })
+  const cameraHome = h.loadPage('dashboard'); cameraHome.handleQuickPhoto()
+  assert.equal(h.state.route, 'pages/product-edit/product-edit')
+  assert.equal(h.storage.get('zhermai_pending_product_recognition_image'), 'camera-product.jpg')
+  const cameraEditor = h.loadPage('product-edit'); cameraEditor.onLoad({})
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(h.storage.has('zhermai_pending_product_recognition_image'), false, 'camera handoff is consumed once')
+  assert.equal(h.state.uploads, 2, 'camera handoff recognizes and uploads the product photo')
   h = harness(); const sellerLogin = h.loadPage('login')
-  await sellerLogin.handleRegister(); await sellerLogin.handleWechatRegister({ detail: {} })
-  assert.equal(h.state.requests, 0, 'missing distribution choice blocks both registration paths')
+  await sellerLogin.handleRegister()
+  assert.equal(h.state.requests, 0, 'missing distribution choice blocks registration')
   assert.equal(sellerLogin.data.error, '请选择是否支持铺货')
   sellerLogin.handleDistributionChange({ detail: { value: 'no' } })
   assert.equal(sellerLogin.data.supportsDistribution, false); assert.equal(sellerLogin.requireDistribution(), true)
@@ -169,6 +178,11 @@ async function main() {
   sellerLogin.setData({ supportsDistribution: null, identifier: 'seller@example.com', password: 'password1' })
   await sellerLogin.handleAccountLogin()
   assert.equal(h.state.requests, 1, 'email login no longer requires a distribution choice')
+  h = harness(); const quickLogin = h.loadPage('login')
+  h.state.response = { bound: true, token: 'quick-token', user_id: 1, email: null, role: 'seller', name: '商家 1234', store_name: null, avatar_url: null, business_license_url: null, country: 'CN', phone: '13800001234', uid: 'uid', supports_distribution: null }
+  await quickLogin.handleWechatLogin({ detail: { code: 'phone-code' } })
+  assert.equal(h.storage.get('quotepilot_token'), 'quick-token', 'first quick login directly creates and signs in to a seller account')
+  assert.equal(h.state.route, 'pages/dashboard/dashboard')
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'app.json'), 'utf8'))
   for (const name of ['login', 'profile']) {
     const regionPage = harness().loadPage(name)

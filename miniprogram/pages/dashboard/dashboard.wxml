@@ -24,6 +24,15 @@
       <text class="hero-cta">去处理 ›</text>
     </view>
 
+    <view class="quick-photo" bindtap="handleQuickPhoto">
+      <view class="quick-photo-icon">▣</view>
+      <view class="quick-photo-copy">
+        <text class="quick-photo-title">拍照上传商品</text>
+        <text class="quick-photo-subtitle">拍摄商品，AI 自动识别参数并带入商品表单</text>
+      </view>
+      <text class="quick-photo-arrow">›</text>
+    </view>
+
     <view class="stats">
       <view class="stat">
         <text class="stat-value">{{productCount}}</text>

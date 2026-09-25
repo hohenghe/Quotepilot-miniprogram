@@ -4,6 +4,7 @@ import { getSellerProduct, createSellerProduct, updateSellerProduct, deleteSelle
 import { ProductPayload, AIRecognizedFields } from '../../types/product'
 
 const MAX_IMAGES = 10
+const PENDING_RECOGNITION_IMAGE_KEY = 'zhermai_pending_product_recognition_image'
 
 const CATEGORIES = [
   'led_lighting', 'electronics', 'machinery', 'textiles',
@@ -62,6 +63,12 @@ Page({
     wx.setNavigationBarTitle({ title: id ? '编辑商品' : '新增商品' })
     if (id) {
       this.loadProduct(id)
+      return
+    }
+    const pendingImage = wx.getStorageSync(PENDING_RECOGNITION_IMAGE_KEY)
+    wx.removeStorageSync(PENDING_RECOGNITION_IMAGE_KEY)
+    if (typeof pendingImage === 'string' && pendingImage) {
+      this.handleRecognize(pendingImage, true)
     }
   },
 
@@ -193,7 +200,7 @@ Page({
     })
   },
 
-  async handleRecognize(filePath: string) {
+  async handleRecognize(filePath: string, attachAsProductImage = false) {
     if (!promptLogin()) return
     if (this.data.recognizing || this.data.uploading || this.data.saving) return
     this.setData({ recognizing: true })
@@ -201,6 +208,16 @@ Page({
       const res = await recognizeProductImage(filePath)
       if (res && res.success && res.data) {
         this.applyRecognition(res.data)
+        if (attachAsProductImage && this.data.images.length < MAX_IMAGES) {
+          try {
+            const image = await uploadProductImage(filePath)
+            if (image && image.url) {
+              this.setData({ images: this.data.images.concat([image.url]) })
+            }
+          } catch {
+            wx.showToast({ title: '参数已识别，但图片上传失败', icon: 'none' })
+          }
+        }
         this.setData({ aiDone: true })
         wx.showToast({ title: '已识别，请检查参数', icon: 'success' })
       } else {

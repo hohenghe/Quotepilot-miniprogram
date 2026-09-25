@@ -1,5 +1,5 @@
 import { getToken } from '../../utils/auth'
-import { needsTutorial, openTutorial, resumeVisitorTimer, pauseVisitorTimer, openGuestLogin } from '../../utils/visitor'
+import { needsTutorial, openTutorial, resumeVisitorTimer, pauseVisitorTimer, openGuestLogin, promptLogin } from '../../utils/visitor'
 import { getMe, getSellerProducts, getSellerInquiries, getSellerScore, SellerInquiryItem } from '../../services/seller'
 
 Page({
@@ -31,6 +31,23 @@ Page({
 
   goTutorial() { openTutorial() },
   handleHeaderLogin() { openGuestLogin() },
+
+  handleQuickPhoto() {
+    if (!promptLogin()) return
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['camera'],
+      sizeType: ['compressed'],
+      success: (res) => {
+        const file = res.tempFiles && res.tempFiles[0]
+        if (!file || !file.tempFilePath) return
+        wx.setStorageSync('zhermai_pending_product_recognition_image', file.tempFilePath)
+        wx.navigateTo({ url: '/pages/product-edit/product-edit' })
+      },
+      fail: () => wx.showToast({ title: '无法打开相机，请稍后重试', icon: 'none' }),
+    })
+  },
 
   async loadData() {
     if (!getToken()) {

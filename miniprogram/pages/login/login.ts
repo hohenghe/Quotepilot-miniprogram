@@ -3,7 +3,6 @@ import { getToken, saveAuth, AuthUser } from '../../utils/auth'
 import {
   wechatLogin,
   wechatBind,
-  wechatRegister,
   getWechatPhone,
   login,
   register,
@@ -16,7 +15,7 @@ const REGIONS = CHINA_PROVINCES
 
 let resendTimer: number | null = null
 
-type Mode = 'home' | 'wechatUnbound' | 'accountLogin' | 'register' | 'wechatRegister' | 'bind' | 'registered'
+type Mode = 'home' | 'wechatUnbound' | 'accountLogin' | 'register' | 'bind' | 'registered'
 
 /**
  * Calls the official Mini Program login API for a one-time credential.
@@ -32,10 +31,6 @@ function getWechatLoginCode(): Promise<string> {
       fail: () => reject(new Error('无法调用快捷登录服务，请稍后重试')),
     })
   })
-}
-
-function isEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
 type PhoneAuthorizationEvent = {
@@ -127,11 +122,11 @@ Page({
       const phoneCode = getAuthorizedPhoneCode(event)
       const code = await getWechatLoginCode()
       const result = await wechatLogin(code, phoneCode)
-      if (result.bound && result.token) {
+      if (result.token) {
         saveAuth(result.token, toAuthUser(result))
         wx.reLaunch({ url: '/pages/dashboard/dashboard' })
       } else {
-        this.setData({ mode: 'wechatUnbound', error: '' })
+        this.setData({ error: '快捷登录注册失败，请稍后重试' })
       }
     } catch (e) {
       this.setData({ error: (e as Error).message || '登录失败' })
@@ -158,10 +153,6 @@ Page({
 
   goWechatBind() {
     this.setData({ mode: 'bind', error: '' })
-  },
-
-  goWechatRegister() {
-    this.setData({ mode: 'wechatRegister', error: '' })
   },
 
   goHome() {
@@ -292,14 +283,14 @@ Page({
     }
   },
 
-  validateRegister(requireManualPhone = true): boolean {
+  validateRegister(): boolean {
     if (!this.requireDistribution()) return false
     const { regEmail, regPassword, regConfirm, regName, regPhone } = this.data
-    if (!regEmail.trim() || !regPassword || !regName.trim() || (requireManualPhone && !regPhone.trim())) {
+    if (!regPassword || !regName.trim() || !regPhone.trim()) {
       this.setData({ error: '请填写所有必填项' })
       return false
     }
-    if (!isEmail(regEmail.trim())) {
+    if (regEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(regEmail.trim())) {
       this.setData({ error: '请输入有效的邮箱地址' })
       return false
     }
@@ -318,7 +309,7 @@ Page({
     const { regEmail, regPassword, regName, regPhone, regionDisplay } = this.data
     return {
       supports_distribution: this.data.supportsDistribution as boolean,
-      email: regEmail.trim(),
+      email: regEmail.trim() || undefined,
       password: regPassword,
       name: regName.trim(),
       // `country` is retained as the API field name; seller accounts store a
@@ -336,32 +327,7 @@ Page({
       const res = await register(this.registerPayload())
       this.setData({
         mode: 'registered',
-        registeredMessage: res.message || '注册成功，请查收验证邮件',
-        registeredEmail: this.data.regEmail.trim(),
-        resendMessage: '',
-        resendCooldown: 0,
-        resendBtnText: '重新发送验证邮件',
-      })
-    } catch (e) {
-      this.setData({ error: (e as Error).message || '注册失败' })
-    } finally {
-      this.setData({ loading: false })
-    }
-  },
-
-  async handleWechatRegister(event: PhoneAuthorizationEvent) {
-    if (!this.validateRegister(false)) return
-    if (this.data.loading) return
-    this.setData({ loading: true, error: '' })
-    try {
-      const phoneCode = getAuthorizedPhoneCode(event)
-      // Registration also needs a fresh, single-use WeChat credential. The
-      // server creates the email account and WeChat binding in one operation.
-      const code = await getWechatLoginCode()
-      const res = await wechatRegister({ ...this.registerPayload(), code, phone_code: phoneCode })
-      this.setData({
-        mode: 'registered',
-        registeredMessage: res.message || '邮箱账号已注册并完成绑定，请查收验证邮件',
+        registeredMessage: res.message || (this.data.regEmail.trim() ? '注册成功，请查收验证邮件' : '注册成功，请使用手机号登录'),
         registeredEmail: this.data.regEmail.trim(),
         resendMessage: '',
         resendCooldown: 0,

@@ -3,7 +3,7 @@
     <image class="brand-logo" src="/images/zhermai-logo.png" mode="aspectFill" />
   </view>
 
-  <view wx:if="{{mode === 'register' || mode === 'wechatRegister'}}" class="distribution-choice">
+  <view wx:if="{{mode === 'register'}}" class="distribution-choice">
     <text class="distribution-title">是否支持铺货（必选）</text>
     <radio-group bindchange="handleDistributionChange">
       <label><radio value="yes" checked="{{supportsDistribution === true}}" disabled="{{loading}}" color="#2563eb" />是</label>
@@ -13,14 +13,13 @@
 
   <block wx:if="{{mode === 'home'}}">
     <button class="btn phone-login" open-type="getPhoneNumber" bindgetphonenumber="handleWechatLogin" loading="{{loading}}" disabled="{{loading}}">手机号快捷登录</button>
-    <button class="btn secondary" bindtap="goAccountLogin">邮箱登录</button>
+    <button class="btn secondary" bindtap="goAccountLogin">账号登录</button>
   </block>
 
   <block wx:elif="{{mode === 'wechatUnbound'}}">
-    <text class="unbound-title">绑定邮箱以继续</text>
-    <text class="hint">当前快捷登录方式尚未绑定卖家账号。请选择已有邮箱账号，或注册新的邮箱账号；完成后会自动绑定。</text>
-    <button class="btn primary" bindtap="goWechatBind">绑定已有邮箱账号</button>
-    <button class="btn secondary" bindtap="goWechatRegister">注册邮箱账号并绑定</button>
+    <text class="unbound-title">登录账号</text>
+    <text class="hint">手机号快捷登录会直接创建或登录卖家账号，无需注册邮箱。</text>
+    <button class="btn primary" bindtap="goWechatBind">绑定已有账号</button>
     <button class="btn text" bindtap="goHome">返回</button>
   </block>
 
@@ -33,9 +32,9 @@
           <view class="eye-icon {{showPwd ? 'open' : 'closed'}}"></view>
         </view>
       </view>
-      <button class="btn primary" bindtap="handleAccountLogin" loading="{{loading}}" disabled="{{loading}}">邮箱登录</button>
+      <button class="btn primary" bindtap="handleAccountLogin" loading="{{loading}}" disabled="{{loading}}">登录</button>
       <button class="btn text" bindtap="goForgotPassword">忘记密码？</button>
-      <button class="btn text" bindtap="goRegister">没有邮箱账号？去注册</button>
+      <button class="btn text" bindtap="goRegister">注册账号</button>
       <button class="btn text" bindtap="goHome">返回</button>
     </view>
   </block>
@@ -55,9 +54,9 @@
     </view>
   </block>
 
-  <block wx:elif="{{mode === 'register' || mode === 'wechatRegister'}}">
+  <block wx:elif="{{mode === 'register'}}">
     <view class="form">
-      <input class="input" type="text" placeholder="邮箱" value="{{regEmail}}" data-field="regEmail" bindinput="handleInput" />
+      <input class="input" type="text" placeholder="邮箱（可选）" value="{{regEmail}}" data-field="regEmail" bindinput="handleInput" />
       <view class="pwd-row">
         <input class="input" password="{{!showRegPwd}}" placeholder="密码（至少 8 位）" value="{{regPassword}}" data-field="regPassword" bindinput="handleInput" />
         <view class="pwd-toggle" bindtap="toggleRegPwd" aria-label="切换密码显示">
@@ -71,16 +70,14 @@
         </view>
       </view>
       <input class="input" placeholder="公司名称" value="{{regName}}" data-field="regName" bindinput="handleInput" />
-      <view wx:if="{{mode === 'register'}}" class="phone-row">
+      <view class="phone-row">
         <input class="input phone-input" type="text" placeholder="电话" value="{{regPhone}}" data-field="regPhone" bindinput="handleInput" />
         <button class="phone-authorize" open-type="getPhoneNumber" bindgetphonenumber="handleAuthorizeRegisterPhone" loading="{{authorizingRegisterPhone}}" disabled="{{authorizingRegisterPhone}}">授权手机号</button>
       </view>
-      <text wx:else class="hint bind-hint">注册时将使用已授权的手机号</text>
       <picker mode="multiSelector" range="{{regionColumns}}" value="{{regionIndexes}}" bindchange="handleRegionChange" bindcolumnchange="handleRegionColumnChange">
         <view class="input picker">地区：{{regionDisplay}}</view>
       </picker>
-      <button wx:if="{{mode === 'register'}}" class="btn primary" bindtap="handleRegister" loading="{{loading}}" disabled="{{loading}}">注册</button>
-      <button wx:else class="btn primary" open-type="{{supportsDistribution !== null ? 'getPhoneNumber' : ''}}" bindtap="requireDistribution" bindgetphonenumber="handleWechatRegister" loading="{{loading}}" disabled="{{loading}}">授权手机号并注册绑定</button>
+      <button class="btn primary" bindtap="handleRegister" loading="{{loading}}" disabled="{{loading}}">注册</button>
       <button class="btn text" bindtap="goHome">返回</button>
     </view>
   </block>
@@ -89,11 +86,14 @@
     <view class="form center">
       <text class="success-title">注册成功</text>
       <text class="registered-message">{{registeredMessage}}</text>
-      <text class="hint">验证邮件已发送到</text>
-      <text class="registered-email">{{registeredEmail}}</text>
-      <text class="hint">该邮箱已完成账号绑定。请先完成邮箱验证，再使用手机号快捷登录。</text>
+      <block wx:if="{{registeredEmail}}">
+        <text class="hint">验证邮件已发送到</text>
+        <text class="registered-email">{{registeredEmail}}</text>
+        <text class="hint">验证完成后即可使用账号登录。</text>
+      </block>
+      <text wx:else class="hint">可直接使用手机号快捷登录。</text>
       <text wx:if="{{resendMessage}}" class="resend-message">{{resendMessage}}</text>
-      <button
+      <button wx:if="{{registeredEmail}}"
         class="btn primary"
         bindtap="handleResendVerification"
         loading="{{resending}}"

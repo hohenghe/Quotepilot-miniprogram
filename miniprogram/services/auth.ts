@@ -21,7 +21,7 @@ export interface WechatAuthResult extends AuthResult {
 
 export interface RegisterPayload {
   supports_distribution: boolean
-  email: string
+  email?: string
   password: string
   name: string
   country: string
