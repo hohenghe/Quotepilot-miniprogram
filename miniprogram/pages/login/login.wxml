@@ -1,6 +1,6 @@
 <view class="page">
   <view wx:if="{{mode === 'home'}}" class="brand">
-    <image class="brand-logo" src="/images/zhermai-logo.png" mode="aspectFill" />
+    <image class="brand-logo" src="/images/zhermai-seller-logo.svg" mode="aspectFit" />
   </view>
 
   <view wx:if="{{mode === 'register'}}" class="distribution-choice">

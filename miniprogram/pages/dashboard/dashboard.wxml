@@ -10,7 +10,7 @@
 
   <block wx:else>
     <view class="header" bindtap="handleHeaderLogin" aria-label="{{guest ? '登录/注册' : storeName}}">
-      <image class="header-logo" src="/images/zhermai-logo.png" mode="aspectFill" />
+      <image class="header-logo" src="/images/zhermai-seller-logo.svg" mode="aspectFit" />
       <text class="store-name">{{guest ? '登录/注册' : storeName}}</text>
       <text wx:if="{{!guest}}" class="uid">会员号 {{uid}}</text>
       <text wx:else class="uid">游客浏览 · 登录后查看店铺数据</text>
