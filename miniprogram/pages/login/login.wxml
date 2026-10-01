@@ -12,7 +12,8 @@
   </view>
 
   <block wx:if="{{mode === 'home'}}">
-    <button class="btn phone-login" open-type="getPhoneNumber" bindgetphonenumber="handleWechatLogin" loading="{{loading}}" disabled="{{loading}}">手机号快捷登录</button>
+    <button wx:if="{{wechatBoundReady}}" class="btn phone-login" bindtap="handleBoundWechatLogin" loading="{{loading}}" disabled="{{loading}}">微信快捷登录</button>
+    <button wx:else class="btn phone-login" open-type="getPhoneNumber" bindgetphonenumber="handleWechatLogin" loading="{{loading}}" disabled="{{loading}}">手机号快捷登录</button>
     <button class="btn secondary" bindtap="goAccountLogin">账号登录</button>
   </block>
 

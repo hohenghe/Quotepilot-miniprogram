@@ -2,6 +2,7 @@ import { pauseVisitorTimer } from '../../utils/visitor'
 import { getToken, saveAuth, AuthUser } from '../../utils/auth'
 import {
   wechatLogin,
+  prepareWechatSession,
   wechatBind,
   getWechatPhone,
   login,
@@ -14,6 +15,8 @@ import { CHINA_PROVINCES, CHINA_REGIONS, regionValue } from '../../config/china-
 const REGIONS = CHINA_PROVINCES
 
 let resendTimer: number | null = null
+let preparedSession: { token: string, expiresAt: number, authResult: AuthResult | null } | null = null
+let preparingSession: Promise<void> | null = null
 
 type Mode = 'home' | 'wechatUnbound' | 'accountLogin' | 'register' | 'bind' | 'registered'
 
@@ -31,6 +34,28 @@ function getWechatLoginCode(): Promise<string> {
       fail: () => reject(new Error('无法调用快捷登录服务，请稍后重试')),
     })
   })
+}
+
+function prefetchWechatSession(): Promise<void> {
+  if (preparedSession && preparedSession.expiresAt > Date.now() + 15000) return Promise.resolve()
+  if (preparingSession) return preparingSession
+  preparingSession = (async () => {
+    try {
+      const code = await getWechatLoginCode()
+      const result = await prepareWechatSession(code)
+      preparedSession = {
+        token: result.session_token,
+        expiresAt: Date.now() + result.expires_in * 1000,
+        authResult: result.auth_result,
+      }
+    } catch (_) {
+      preparedSession = null
+      // A fresh wx.login remains available when the user taps quick login.
+    } finally {
+      preparingSession = null
+    }
+  })()
+  return preparingSession
 }
 
 type PhoneAuthorizationEvent = {
@@ -69,6 +94,7 @@ Page({
     supportsDistribution: null as boolean | null,
     mode: 'home' as Mode,
     loading: false,
+    wechatBoundReady: false,
     error: '',
     registeredMessage: '',
     registeredEmail: '',
@@ -102,6 +128,33 @@ Page({
     pauseVisitorTimer()
     if (getToken()) {
       wx.reLaunch({ url: '/pages/dashboard/dashboard' })
+    } else {
+      void this.refreshWechatSession()
+    }
+  },
+
+  async refreshWechatSession() {
+    await prefetchWechatSession()
+    if (!getToken()) {
+      this.setData({ wechatBoundReady: !!(preparedSession && preparedSession.authResult && preparedSession.authResult.token) })
+    }
+  },
+
+  async handleBoundWechatLogin() {
+    if (this.data.loading) return
+    this.setData({ loading: true, error: '' })
+    try {
+      await prefetchWechatSession()
+      const session = preparedSession
+      if (!session || session.expiresAt <= Date.now() + 15000 || !session.authResult || !session.authResult.token) {
+        this.setData({ wechatBoundReady: false, error: '请授权手机号完成登录' })
+        return
+      }
+      preparedSession = null
+      saveAuth(session.authResult.token, toAuthUser(session.authResult))
+      wx.reLaunch({ url: '/pages/dashboard/dashboard' })
+    } finally {
+      this.setData({ loading: false })
     }
   },
 
@@ -120,8 +173,26 @@ Page({
     this.setData({ loading: true, error: '' })
     try {
       const phoneCode = getAuthorizedPhoneCode(event)
-      const code = await getWechatLoginCode()
-      const result = await wechatLogin(code, phoneCode)
+      if (preparingSession) await preparingSession
+      const session = preparedSession
+      preparedSession = null
+      if (session && session.expiresAt > Date.now() + 15000 && session.authResult && session.authResult.token) {
+        saveAuth(session.authResult.token, toAuthUser(session.authResult))
+        wx.reLaunch({ url: '/pages/dashboard/dashboard' })
+        return
+      }
+      let result
+      if (session && session.expiresAt > Date.now() + 15000) {
+        try {
+          result = await wechatLogin({ session_token: session.token }, phoneCode)
+        } catch (e) {
+          // An expired or invalid ticket is rejected before the phone code is used.
+          if ((e as Error).message !== 'WeChat session expired') throw e
+          result = await wechatLogin({ code: await getWechatLoginCode() }, phoneCode)
+        }
+      } else {
+        result = await wechatLogin({ code: await getWechatLoginCode() }, phoneCode)
+      }
       if (result.token) {
         saveAuth(result.token, toAuthUser(result))
         wx.reLaunch({ url: '/pages/dashboard/dashboard' })
@@ -132,6 +203,7 @@ Page({
       this.setData({ error: (e as Error).message || '登录失败' })
     } finally {
       this.setData({ loading: false })
+      if (!getToken()) void this.refreshWechatSession()
     }
   },
 

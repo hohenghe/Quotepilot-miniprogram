@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test:visitor": "node tests/visitor.cjs"
+    "test:visitor": "node tests/visitor.cjs",
+    "test:login": "node tests/login-prefetch.cjs"
   },
   "keywords": [],
   "author": "",

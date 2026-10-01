@@ -40,10 +40,17 @@ export function getWechatPhone(phoneCode: string): Promise<{ phone: string }> {
   })
 }
 
-export function wechatLogin(code: string, phoneCode: string): Promise<WechatAuthResult> {
+export function prepareWechatSession(code: string): Promise<{ session_token: string, expires_in: number, auth_result: WechatAuthResult | null }> {
+  return request('/api/auth/wechat-session', {
+    method: 'POST',
+    data: { code },
+  })
+}
+
+export function wechatLogin(credentials: { code: string } | { session_token: string }, phoneCode: string): Promise<WechatAuthResult> {
   return request<WechatAuthResult>('/api/auth/wechat-login', {
     method: 'POST',
-    data: { code, phone_code: phoneCode },
+    data: { ...credentials, phone_code: phoneCode },
   })
 }
 
