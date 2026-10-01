@@ -183,6 +183,10 @@ Page({
     try {
       await updateProfile(payload)
       wx.showToast({ title: '保存成功', icon: 'success' })
+      setTimeout(() => {
+        if (getCurrentPages().length > 1) wx.navigateBack()
+        else wx.reLaunch({ url: '/pages/dashboard/dashboard' })
+      }, 500)
     } catch (e) {
       wx.showToast({ title: (e as Error).message || '保存失败', icon: 'none' })
     } finally {

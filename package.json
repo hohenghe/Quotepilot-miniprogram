@@ -5,7 +5,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test:visitor": "node tests/visitor.cjs",
-    "test:login": "node tests/login-prefetch.cjs"
+    "test:login": "node tests/login-prefetch.cjs",
+    "test:profile": "node tests/profile-save.cjs"
   },
   "keywords": [],
   "author": "",
