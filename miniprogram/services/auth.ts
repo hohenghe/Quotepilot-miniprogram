@@ -17,6 +17,7 @@ export interface AuthResult {
 
 export interface WechatAuthResult extends AuthResult {
   bound: boolean
+  phone_binding_warning?: string | null
 }
 
 export interface RegisterPayload {
@@ -40,7 +41,7 @@ export function getWechatPhone(phoneCode: string): Promise<{ phone: string }> {
   })
 }
 
-export function prepareWechatSession(code: string): Promise<{ session_token: string, expires_in: number, auth_result: WechatAuthResult | null }> {
+export function prepareWechatSession(code: string): Promise<{ session_token: string, expires_in: number, bound: boolean }> {
   return request('/api/auth/wechat-session', {
     method: 'POST',
     data: { code },

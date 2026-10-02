@@ -9,10 +9,11 @@ const javascript = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
 }).outputText
 
-function createPage(authResult) {
+function createPage(authResult, loginResult = { token: 'new-token', user_id: 2, role: 'seller' }) {
   let saved = null
   const requests = []
   const navigations = []
+  const modals = []
   const pageModule = { exports: {} }
   const fakeRequire = (name) => {
     if (name === '../../utils/visitor') return { pauseVisitorTimer() {} }
@@ -21,10 +22,11 @@ function createPage(authResult) {
       saveAuth: (token, user) => { saved = { token, user } },
     }
     if (name === '../../services/auth') return {
-      prepareWechatSession: async () => ({ session_token: 'prepared', expires_in: 120, auth_result: authResult }),
+      prepareWechatSession: async () => ({ session_token: 'prepared', expires_in: 120, bound: !!authResult }),
       wechatLogin: async (credentials, phoneCode) => {
         requests.push({ credentials, phoneCode })
-        return { token: 'new-token', user_id: 2, role: 'seller' }
+        if (loginResult instanceof Error) throw loginResult
+        return loginResult
       },
     }
     if (name === '../../config/china-cities') return {
@@ -38,6 +40,7 @@ function createPage(authResult) {
     wx: {
       login: ({ success }) => success({ code: 'wechat-code' }),
       reLaunch: ({ url }) => navigations.push(url),
+      showModal: options => { modals.push(options); options.success?.() },
     },
     getCurrentPages: () => [],
     Date, Promise, setInterval, clearInterval,
@@ -45,7 +48,7 @@ function createPage(authResult) {
   vm.runInNewContext(javascript, context, { filename: 'login.js' })
   const page = context.page
   page.setData = (values) => Object.assign(page.data, values)
-  return { page, requests, navigations, getSaved: () => saved }
+  return { page, requests, navigations, modals, getSaved: () => saved }
 }
 
 async function main() {
@@ -73,6 +76,24 @@ async function main() {
   assert.equal(denied.getSaved(), null)
   assert.equal(denied.requests.length, 0)
   assert.equal(denied.navigations.length, 0)
+  const mismatch = createPage({ token: 'bound-token', user_id: 1, role: 'seller' }, {
+    token: 'current-token', user_id: 1, role: 'seller',
+    phone_binding_warning: '微信登录成功，但授权手机号已属于其他账号，主手机号未更改。',
+  })
+  await mismatch.page.refreshWechatSession()
+  await mismatch.page.handleWechatLogin({ detail: { code: 'phone-code' } })
+  assert.equal(mismatch.getSaved().user.user_id, 1)
+  assert.equal(mismatch.modals.length, 1)
+  assert.equal(mismatch.navigations[0], '/pages/dashboard/dashboard')
+  const existing = createPage(null, new Error('该手机号已有卖家账号，请使用账号密码登录并绑定微信'))
+  await existing.page.refreshWechatSession()
+  await existing.page.handleWechatLogin({ detail: { code: 'phone-code' } })
+  assert.equal(existing.page.data.mode, 'bind')
+  assert.equal(existing.getSaved(), null)
+  const alreadyBound = createPage(null, new Error('该手机号已有账号且绑定了其他微信，请使用账号密码登录'))
+  await alreadyBound.page.refreshWechatSession()
+  await alreadyBound.page.handleWechatLogin({ detail: { code: 'phone-code' } })
+  assert.equal(alreadyBound.page.data.mode, 'accountLogin')
   console.log('PASS: bound and new logins authorize a phone; denial cannot bypass authorization')
 }
 

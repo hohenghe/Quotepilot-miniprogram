@@ -15,7 +15,7 @@ import { CHINA_PROVINCES, CHINA_REGIONS, regionValue } from '../../config/china-
 const REGIONS = CHINA_PROVINCES
 
 let resendTimer: number | null = null
-let preparedSession: { token: string, expiresAt: number, authResult: AuthResult | null } | null = null
+let preparedSession: { token: string, expiresAt: number, bound: boolean } | null = null
 let preparingSession: Promise<void> | null = null
 
 type Mode = 'home' | 'wechatUnbound' | 'accountLogin' | 'register' | 'bind' | 'registered'
@@ -46,7 +46,7 @@ function prefetchWechatSession(): Promise<void> {
       preparedSession = {
         token: result.session_token,
         expiresAt: Date.now() + result.expires_in * 1000,
-        authResult: result.auth_result,
+        bound: result.bound,
       }
     } catch (_) {
       preparedSession = null
@@ -137,7 +137,7 @@ Page({
   async refreshWechatSession() {
     await prefetchWechatSession()
     if (!getToken()) {
-      this.setData({ wechatBoundReady: !!(preparedSession && preparedSession.authResult && preparedSession.authResult.token) })
+      this.setData({ wechatBoundReady: !!(preparedSession && preparedSession.bound) })
     }
   },
 
@@ -173,12 +173,26 @@ Page({
       }
       if (result.token) {
         saveAuth(result.token, toAuthUser(result))
-        wx.reLaunch({ url: '/pages/dashboard/dashboard' })
+        if (result.phone_binding_warning) {
+          wx.showModal({
+            title: '手机号未绑定',
+            content: result.phone_binding_warning,
+            showCancel: false,
+            success: () => wx.reLaunch({ url: '/pages/dashboard/dashboard' }),
+          })
+        } else {
+          wx.reLaunch({ url: '/pages/dashboard/dashboard' })
+        }
       } else {
         this.setData({ error: '快捷登录注册失败，请稍后重试' })
       }
     } catch (e) {
-      this.setData({ error: (e as Error).message || '登录失败' })
+      const message = (e as Error).message || '登录失败'
+      this.setData({
+        mode: message.includes('请使用账号密码登录并绑定微信') ? 'bind'
+          : message.includes('请使用账号密码登录') ? 'accountLogin' : this.data.mode,
+        error: message,
+      })
     } finally {
       this.setData({ loading: false })
       if (!getToken()) void this.refreshWechatSession()
