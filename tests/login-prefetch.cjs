@@ -52,9 +52,11 @@ async function main() {
   const bound = createPage({ token: 'bound-token', user_id: 1, role: 'seller' })
   await bound.page.refreshWechatSession()
   assert.equal(bound.page.data.wechatBoundReady, true)
-  await bound.page.handleBoundWechatLogin()
-  assert.equal(bound.getSaved().token, 'bound-token')
-  assert.equal(bound.requests.length, 0)
+  await bound.page.handleWechatLogin({ detail: { code: 'authorized-phone-code' } })
+  assert.equal(bound.getSaved().token, 'new-token')
+  assert.equal(bound.requests.length, 1)
+  assert.equal(bound.requests[0].phoneCode, 'authorized-phone-code')
+  assert.equal(bound.requests[0].credentials.session_token, 'prepared')
   assert.equal(bound.navigations[0], '/pages/dashboard/dashboard')
 
   const unbound = createPage(null)
@@ -65,7 +67,13 @@ async function main() {
   assert.equal(unbound.requests[0].credentials.session_token, 'prepared')
   assert.equal(unbound.requests[0].phoneCode, 'phone-code')
   assert.equal(unbound.getSaved().token, 'new-token')
-  console.log('PASS: prepared bound login and first phone login')
+  const denied = createPage({ token: 'bound-token', user_id: 1, role: 'seller' })
+  await denied.page.refreshWechatSession()
+  await denied.page.handleWechatLogin({ detail: { errMsg: 'getPhoneNumber:fail user deny' } })
+  assert.equal(denied.getSaved(), null)
+  assert.equal(denied.requests.length, 0)
+  assert.equal(denied.navigations.length, 0)
+  console.log('PASS: bound and new logins authorize a phone; denial cannot bypass authorization')
 }
 
 main().catch((error) => {

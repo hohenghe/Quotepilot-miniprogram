@@ -18,7 +18,11 @@ function harness() {
     navigateTo: options => { state.navigations.push(options.url); state.route = options.url.slice(1) },
     navigateBack: () => { state.route = 'pages/dashboard/dashboard' },
     reLaunch: options => { state.navigations.push(options.url); state.route = options.url.slice(1) },
-    request: options => { state.requests++; options.success({ statusCode: state.status || 200, data: state.response || {} }) },
+    request: options => {
+      state.requests++
+      if (state.pendingRequests) { state.pendingRequests.push(options); return }
+      options.success({ statusCode: state.status || 200, data: state.response || {} })
+    },
     login: options => { options.success({ code: 'wechat-code' }) },
     uploadFile: options => { state.uploads++; options.success({ statusCode: state.status || 200, data: state.uploadResponse }) },
     chooseImage: () => { state.choices++ },
@@ -152,6 +156,40 @@ async function main() {
   h.cancel()
   const login = h.loadPage('login'); login.continueAsGuest()
   assert.equal(h.state.route, 'pages/dashboard/dashboard')
+
+  h = harness(); h.load('utils/visitor.ts').finishTutorial()
+  h.storage.set('quotepilot_token', 'stale-token')
+  h.storage.set('quotepilot_user', { user_id: 1 })
+  h.loadPage('login').continueAsGuest()
+  const returnedHome = h.loadPage('dashboard'); returnedHome.onShow()
+  assert.equal(h.storage.has('quotepilot_token'), false)
+  assert.equal(h.storage.has('quotepilot_user'), false)
+  assert.equal(returnedHome.data.guest, true)
+  assert.equal(h.state.requests, 0, 'continue browsing clears stale auth before returning home')
+
+  h = harness(); h.storage.set('quotepilot_token', 'expired-token')
+  h.state.pendingRequests = []
+  const expiredHome = h.loadPage('dashboard')
+  const expiredLoad = expiredHome.loadData()
+  assert.equal(h.state.requests, 1, 'only identity is requested before validation completes')
+  assert.ok(h.state.pendingRequests[0].url.endsWith('/api/auth/me'))
+  h.state.pendingRequests[0].success({ statusCode: 401, data: {} })
+  await expiredLoad
+  assert.equal(h.state.requests, 1, 'invalid session never loads products, inquiries or score')
+  assert.equal(expiredHome.data.guest, true)
+  assert.equal(expiredHome.data.error, '')
+  assert.equal(expiredHome.data.loading, false)
+  h.cancel(); h.loadPage('login').continueAsGuest(); await expiredHome.loadData()
+  assert.equal(h.state.requests, 1, 'guest return does not retry rejected requests')
+
+  h = harness(); h.storage.set('quotepilot_token', 'valid-token')
+  h.state.response = { store_name: 'Test store', total: 2, items: [], score: 4.5 }
+  const signedInHome = h.loadPage('dashboard'); await signedInHome.loadData()
+  assert.equal(h.state.requests, 4, 'valid session still loads the complete dashboard')
+  assert.equal(signedInHome.data.guest, false)
+  assert.equal(signedInHome.data.storeName, 'Test store')
+  assert.equal(signedInHome.data.scoreText, '4.5')
+
   h = harness(); const guestHome = h.loadPage('dashboard'); guestHome.handleHeaderLogin()
   assert.equal(h.state.route, 'pages/login/login')
   assert.equal(h.state.modals.length, 0, 'header opens login directly')

@@ -49,15 +49,24 @@ Page({
     })
   },
 
+  showGuest() {
+    this.setData({ guest: true, loading: false, error: '', storeName: '欢迎体验这儿卖', uid: '', email: '', productCount: 0, inquiryCount: 0, pendingCount: 0, repliedCount: 0, scoreText: '—', inquiries: [] })
+  },
+
   async loadData() {
     if (!getToken()) {
-      this.setData({ guest: true, loading: false, error: '', storeName: '欢迎体验这儿卖', uid: '', email: '', productCount: 0, inquiryCount: 0, pendingCount: 0, repliedCount: 0, scoreText: '—', inquiries: [] })
+      this.showGuest()
       return
     }
     this.setData({ guest: false, loading: true, error: '' })
     try {
-      const [me, products, inquiries, score] = await Promise.all([
-        getMe(),
+      // Validate the cached session before loading private dashboard data.
+      const me = await getMe()
+      if (!getToken()) {
+        this.showGuest()
+        return
+      }
+      const [products, inquiries, score] = await Promise.all([
         getSellerProducts(),
         getSellerInquiries(1, 50),
         getSellerScore(),
@@ -76,6 +85,10 @@ Page({
         loading: false,
       })
     } catch (e) {
+      if (!getToken()) {
+        this.showGuest()
+        return
+      }
       this.setData({ error: (e as Error).message || '加载失败', loading: false })
     }
   },

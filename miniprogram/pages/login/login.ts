@@ -1,5 +1,5 @@
 import { pauseVisitorTimer } from '../../utils/visitor'
-import { getToken, saveAuth, AuthUser } from '../../utils/auth'
+import { getToken, saveAuth, logout, AuthUser } from '../../utils/auth'
 import {
   wechatLogin,
   prepareWechatSession,
@@ -120,6 +120,7 @@ Page({
 
   continueAsGuest() {
     if (this.data.loading) return
+    logout()
     if (getCurrentPages().length > 1) wx.navigateBack()
     else wx.reLaunch({ url: '/pages/dashboard/dashboard' })
   },
@@ -137,24 +138,6 @@ Page({
     await prefetchWechatSession()
     if (!getToken()) {
       this.setData({ wechatBoundReady: !!(preparedSession && preparedSession.authResult && preparedSession.authResult.token) })
-    }
-  },
-
-  async handleBoundWechatLogin() {
-    if (this.data.loading) return
-    this.setData({ loading: true, error: '' })
-    try {
-      await prefetchWechatSession()
-      const session = preparedSession
-      if (!session || session.expiresAt <= Date.now() + 15000 || !session.authResult || !session.authResult.token) {
-        this.setData({ wechatBoundReady: false, error: '请授权手机号完成登录' })
-        return
-      }
-      preparedSession = null
-      saveAuth(session.authResult.token, toAuthUser(session.authResult))
-      wx.reLaunch({ url: '/pages/dashboard/dashboard' })
-    } finally {
-      this.setData({ loading: false })
     }
   },
 
@@ -176,11 +159,6 @@ Page({
       if (preparingSession) await preparingSession
       const session = preparedSession
       preparedSession = null
-      if (session && session.expiresAt > Date.now() + 15000 && session.authResult && session.authResult.token) {
-        saveAuth(session.authResult.token, toAuthUser(session.authResult))
-        wx.reLaunch({ url: '/pages/dashboard/dashboard' })
-        return
-      }
       let result
       if (session && session.expiresAt > Date.now() + 15000) {
         try {
