@@ -9,6 +9,7 @@ import {
   login,
   register,
   resendVerification,
+  verifyEmail,
   AuthResult,
 } from '../../services/auth'
 import { CHINA_PROVINCES, CHINA_REGIONS, regionValue } from '../../config/china-cities'
@@ -102,10 +103,13 @@ Page({
     error: '',
     registeredMessage: '',
     registeredEmail: '',
+    verificationCode: '',
+    verifying: false,
+    verified: false,
     resending: false,
     resendMessage: '',
     resendCooldown: 0,
-    resendBtnText: '重新发送验证邮件',
+    resendBtnText: '重新发送验证码',
     identifier: '',
     password: '',
     showPwd: false,
@@ -222,6 +226,16 @@ Page({
     this.setData({ mode: 'register', error: '', regPhone: '' })
   },
 
+  openEmailVerification() {
+    const email = this.data.identifier.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.setData({ error: '请先输入注册邮箱' })
+      return
+    }
+    this.setData({ mode: 'registered', registeredEmail: email, registeredMessage: '请输入邮箱收到的六位验证码。',
+      verificationCode: '', verified: false, error: '', resendMessage: '', resendCooldown: 0 })
+  },
+
   goWechatUnbound() {
     if (!this.data.choiceToken) { this.goHome(); return }
     this.setData({ mode: 'wechatUnbound', error: '' })
@@ -262,9 +276,11 @@ Page({
       phoneHint: '',
       registrationAvailable: false,
       registeredEmail: '',
+      verificationCode: '',
+      verified: false,
       resendMessage: '',
       resendCooldown: 0,
-      resendBtnText: '重新发送验证邮件',
+      resendBtnText: '重新发送验证码',
     })
   },
 
@@ -424,15 +440,18 @@ Page({
     if (this.data.loading) return
     this.setData({ loading: true, error: '' })
     try {
-      const res = await register(this.registerPayload())
+      await register(this.registerPayload())
       this.setData({
         mode: 'registered',
-        registeredMessage: res.message || (this.data.regEmail.trim() ? '注册成功，请查收验证邮件' : '注册成功，请使用手机号登录'),
+        registeredMessage: this.data.regEmail.trim() ? '注册成功，请输入邮箱收到的六位验证码。' : '注册成功，请使用手机号登录',
         registeredEmail: this.data.regEmail.trim(),
+        verificationCode: '',
+        verified: false,
         resendMessage: '',
         resendCooldown: 0,
-        resendBtnText: '重新发送验证邮件',
+        resendBtnText: '重新发送验证码',
       })
+      if (this.data.regEmail.trim()) this.startCooldown()
     } catch (e) {
       this.setData({ error: (e as Error).message || '注册失败' })
     } finally {
@@ -449,10 +468,11 @@ Page({
       const res = await resendVerification(email)
       this.setData({
         resendMessage: res.success
-          ? '验证邮件已重新发送，请检查邮箱（包括垃圾邮件）。'
+          ? '验证码已重新发送，请检查邮箱（包括垃圾邮件）。'
           : res.message || '发送失败，请稍后重试',
       })
       if (res.success) {
+        this.setData({ verificationCode: '' })
         this.startCooldown()
       }
     } catch (e) {
@@ -462,11 +482,32 @@ Page({
     }
   },
 
+  async handleVerifyEmail() {
+    const { registeredEmail, verificationCode } = this.data
+    if (!registeredEmail || !/^\d{6}$/.test(verificationCode)) {
+      this.setData({ error: '请输入六位数字验证码' })
+      return
+    }
+    if (this.data.verifying) return
+    this.setData({ verifying: true, error: '' })
+    try {
+      await verifyEmail(registeredEmail, verificationCode)
+      this.setData({ verified: true, registeredMessage: '邮箱验证成功，现在可以登录。', resendMessage: '' })
+    } catch (e) {
+      const message = (e as Error).message || ''
+      this.setData({ error: message.includes('Verification code')
+        ? '验证码无效或已过期，请重试或重新获取'
+        : message.includes('Too many') ? '尝试次数过多，请稍后再试' : message || '验证失败，请重试' })
+    } finally {
+      this.setData({ verifying: false })
+    }
+  },
+
   startCooldown() {
     const update = (n: number) => {
       this.setData({
         resendCooldown: n,
-        resendBtnText: n > 0 ? `重新发送(${n}s)` : '重新发送验证邮件',
+        resendBtnText: n > 0 ? `重新发送(${n}s)` : '重新发送验证码',
       })
     }
     update(60)

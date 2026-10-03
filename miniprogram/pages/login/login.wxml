@@ -36,6 +36,7 @@
       </view>
       <button class="btn primary" bindtap="handleAccountLogin" loading="{{loading}}" disabled="{{loading}}">登录</button>
       <button class="btn text" bindtap="goForgotPassword">忘记密码？</button>
+      <button class="btn text" bindtap="openEmailVerification">验证邮箱</button>
       <button class="btn text" bindtap="goRegister">注册账号</button>
       <button class="btn text" bindtap="goHome">返回</button>
     </view>
@@ -86,16 +87,20 @@
 
   <block wx:elif="{{mode === 'registered'}}">
     <view class="form center">
-      <text class="success-title">注册成功</text>
+      <text class="success-title">{{registeredEmail ? (verified ? '邮箱验证成功' : '邮箱验证') : '注册成功'}}</text>
       <text class="registered-message">{{registeredMessage}}</text>
       <block wx:if="{{registeredEmail}}">
-        <text class="hint">验证邮件已发送到</text>
+        <text class="hint">{{verified ? '已验证邮箱' : '六位验证码已发送到'}}</text>
         <text class="registered-email">{{registeredEmail}}</text>
-        <text class="hint">验证完成后即可使用账号登录。</text>
+        <block wx:if="{{!verified}}">
+          <input class="input code-input" type="number" maxlength="6" placeholder="输入六位验证码" value="{{verificationCode}}" data-field="verificationCode" bindinput="handleInput" />
+          <text class="hint">验证码 5 分钟内有效，验证后即可登录。</text>
+          <button class="btn primary" bindtap="handleVerifyEmail" loading="{{verifying}}" disabled="{{verifying || verificationCode.length !== 6}}">验证邮箱</button>
+        </block>
       </block>
       <text wx:else class="hint">可直接使用手机号快捷登录。</text>
       <text wx:if="{{resendMessage}}" class="resend-message">{{resendMessage}}</text>
-      <button wx:if="{{registeredEmail}}"
+      <button wx:if="{{registeredEmail && !verified}}"
         class="btn primary"
         bindtap="handleResendVerification"
         loading="{{resending}}"

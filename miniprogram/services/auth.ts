@@ -100,6 +100,13 @@ export function resendVerification(email: string): Promise<RegisterResult> {
   })
 }
 
+export function verifyEmail(email: string, code: string): Promise<RegisterResult> {
+  return request<RegisterResult>('/api/auth/verify-email', {
+    method: 'POST',
+    data: { email, code },
+  })
+}
+
 export function changePassword(currentPassword: string, newPassword: string): Promise<AuthResult> {
   return request<AuthResult>('/api/auth/change-password', {
     method: 'POST',
