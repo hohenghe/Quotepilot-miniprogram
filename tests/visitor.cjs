@@ -171,11 +171,11 @@ async function main() {
   h.state.pendingRequests = []
   const expiredHome = h.loadPage('dashboard')
   const expiredLoad = expiredHome.loadData()
-  assert.equal(h.state.requests, 1, 'only identity is requested before validation completes')
-  assert.ok(h.state.pendingRequests[0].url.endsWith('/api/auth/me'))
+  assert.equal(h.state.requests, 1, 'only the authenticated home summary is requested')
+  assert.ok(h.state.pendingRequests[0].url.endsWith('/api/dashboard/seller-home'))
   h.state.pendingRequests[0].success({ statusCode: 401, data: {} })
   await expiredLoad
-  assert.equal(h.state.requests, 1, 'invalid session never loads products, inquiries or score')
+  assert.equal(h.state.requests, 1, 'invalid session never starts extra private requests')
   assert.equal(expiredHome.data.guest, true)
   assert.equal(expiredHome.data.error, '')
   assert.equal(expiredHome.data.loading, false)
@@ -183,11 +183,16 @@ async function main() {
   assert.equal(h.state.requests, 1, 'guest return does not retry rejected requests')
 
   h = harness(); h.storage.set('quotepilot_token', 'valid-token')
-  h.state.response = { store_name: 'Test store', total: 2, items: [], score: 4.5 }
+  h.state.response = {
+    store_name: 'Test store', product_count: 2, inquiry_count: 3,
+    pending_count: 1, replied_count: 2, inquiries: [], score: 4.5,
+  }
   const signedInHome = h.loadPage('dashboard'); await signedInHome.loadData()
-  assert.equal(h.state.requests, 4, 'valid session still loads the complete dashboard')
+  assert.equal(h.state.requests, 1, 'valid session loads the complete dashboard in one request')
   assert.equal(signedInHome.data.guest, false)
   assert.equal(signedInHome.data.storeName, 'Test store')
+  assert.equal(signedInHome.data.productCount, 2)
+  assert.equal(signedInHome.data.pendingCount, 1)
   assert.equal(signedInHome.data.scoreText, '4.5')
 
   h = harness(); const guestHome = h.loadPage('dashboard'); guestHome.handleHeaderLogin()

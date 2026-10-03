@@ -1,6 +1,6 @@
 import { getToken } from '../../utils/auth'
 import { needsTutorial, openTutorial, resumeVisitorTimer, pauseVisitorTimer, openGuestLogin, promptLogin } from '../../utils/visitor'
-import { getMe, getSellerProducts, getSellerInquiries, getSellerScore, SellerInquiryItem } from '../../services/seller'
+import { getSellerHome, SellerHomeSummary } from '../../services/seller'
 
 Page({
   data: {
@@ -15,7 +15,7 @@ Page({
     scoreText: '—',
     loading: true,
     error: '',
-    inquiries: [] as SellerInquiryItem[],
+    inquiries: [] as SellerHomeSummary['inquiries'],
   },
 
   onHide() { pauseVisitorTimer() },
@@ -54,34 +54,31 @@ Page({
   },
 
   async loadData() {
-    if (!getToken()) {
+    const token = getToken()
+    if (!token) {
       this.showGuest()
       return
     }
     this.setData({ guest: false, loading: true, error: '' })
     try {
-      // Validate the cached session before loading private dashboard data.
-      const me = await getMe()
+      // One authenticated home request validates the session and returns only
+      // the counts and five inquiry previews this page actually renders.
+      const home = await getSellerHome()
       if (!getToken()) {
         this.showGuest()
         return
       }
-      const [products, inquiries, score] = await Promise.all([
-        getSellerProducts(),
-        getSellerInquiries(1, 50),
-        getSellerScore(),
-      ])
-      const items = inquiries.items || []
+      if (getToken() !== token) return
       this.setData({
-        email: me.email || '',
-        storeName: me.store_name || me.name || 'Seller',
-        uid: me.uid || '',
-        productCount: products.total || 0,
-        inquiryCount: inquiries.total || 0,
-        pendingCount: inquiries.pending_count != null ? inquiries.pending_count : 0,
-        repliedCount: inquiries.replied_count != null ? inquiries.replied_count : 0,
-        scoreText: score.score != null ? score.score.toFixed(1) : '—',
-        inquiries: items.slice(0, 5),
+        email: home.email || '',
+        storeName: home.store_name || home.name || 'Seller',
+        uid: home.uid || '',
+        productCount: home.product_count || 0,
+        inquiryCount: home.inquiry_count || 0,
+        pendingCount: home.pending_count || 0,
+        repliedCount: home.replied_count || 0,
+        scoreText: home.score != null ? home.score.toFixed(1) : '—',
+        inquiries: home.inquiries || [],
         loading: false,
       })
     } catch (e) {

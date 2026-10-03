@@ -38,6 +38,23 @@ export type {
   SellerReviewsResult,
 }
 
+export interface SellerHomeSummary {
+  email: string | null
+  store_name: string | null
+  name: string | null
+  uid: string | null
+  product_count: number
+  inquiry_count: number
+  pending_count: number
+  replied_count: number
+  score: number | null
+  inquiries: Pick<SellerInquiryItem, 'id' | 'buyer_email' | 'status' | 'raw_message'>[]
+}
+
+export function getSellerHome(): Promise<SellerHomeSummary> {
+  return request<SellerHomeSummary>('/api/dashboard/seller-home')
+}
+
 export function getMe(): Promise<UserProfile> {
   return request<UserProfile>('/api/auth/me')
 }
