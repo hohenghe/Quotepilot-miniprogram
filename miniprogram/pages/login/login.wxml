@@ -18,9 +18,10 @@
   </block>
 
   <block wx:elif="{{mode === 'wechatUnbound'}}">
-    <text class="unbound-title">登录账号</text>
-    <text class="hint">手机号快捷登录会直接创建或登录卖家账号，无需注册邮箱。</text>
-    <button class="btn primary" bindtap="goWechatBind">绑定已有账号</button>
+    <text class="unbound-title">请选择登录方式</text>
+    <text class="hint">已授权手机号{{phoneHint}}。{{registrationAvailable ? '此号码尚未注册，可创建新账号或绑定已有账号。' : '此号码已有账号，请验证密码并绑定该账号。'}}</text>
+    <button wx:if="{{registrationAvailable}}" class="btn primary" bindtap="handleChoiceRegister" loading="{{loading}}" disabled="{{loading}}">用此手机号注册新账号</button>
+    <button class="btn secondary" bindtap="goWechatBind" disabled="{{loading}}">绑定已有账号</button>
     <button class="btn text" bindtap="goHome">返回</button>
   </block>
 
@@ -50,7 +51,7 @@
           <view class="eye-icon {{showPwd ? 'open' : 'closed'}}"></view>
         </view>
       </view>
-      <button class="btn primary" open-type="getPhoneNumber" bindgetphonenumber="handleBind" loading="{{loading}}" disabled="{{loading}}">授权手机号并绑定微信</button>
+      <button class="btn primary" bindtap="handleBind" loading="{{loading}}" disabled="{{loading}}">验证密码并绑定微信</button>
       <button class="btn text" bindtap="goWechatUnbound">返回</button>
     </view>
   </block>

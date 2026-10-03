@@ -28,6 +28,14 @@ function createPage(authResult, loginResult = { token: 'new-token', user_id: 2, 
         if (loginResult instanceof Error) throw loginResult
         return loginResult
       },
+      completeWechatRegistration: async (choiceToken) => {
+        requests.push({ registration: choiceToken })
+        return { token: 'registered-token', user_id: 3, role: 'seller' }
+      },
+      wechatBind: async (choiceToken, identifier, password) => {
+        requests.push({ binding: choiceToken, identifier, password })
+        return { token: 'bound-token', user_id: 4, role: 'seller', bound: true }
+      },
     }
     if (name === '../../config/china-cities') return {
       CHINA_PROVINCES: ['北京'], CHINA_REGIONS: { 北京: ['北京'] }, regionValue: () => '北京',
@@ -62,14 +70,34 @@ async function main() {
   assert.equal(bound.requests[0].credentials.session_token, 'prepared')
   assert.equal(bound.navigations[0], '/pages/dashboard/dashboard')
 
-  const unbound = createPage(null)
+  const unbound = createPage(null, {
+    bound: false, choice_token: 'choice-ticket', phone_hint: '尾号 1234', registration_available: true,
+  })
   await unbound.page.refreshWechatSession()
   assert.equal(unbound.page.data.wechatBoundReady, false)
   await unbound.page.handleWechatLogin({ detail: { code: 'phone-code' } })
   assert.equal(unbound.requests.length, 1)
   assert.equal(unbound.requests[0].credentials.session_token, 'prepared')
   assert.equal(unbound.requests[0].phoneCode, 'phone-code')
-  assert.equal(unbound.getSaved().token, 'new-token')
+  assert.equal(unbound.getSaved(), null)
+  assert.equal(unbound.page.data.mode, 'wechatUnbound')
+  assert.equal(unbound.page.data.phoneHint, '尾号 1234')
+  assert.equal(unbound.page.data.registrationAvailable, true)
+  await unbound.page.handleChoiceRegister()
+  assert.equal(unbound.requests[1].registration, 'choice-ticket')
+  assert.equal(unbound.getSaved().token, 'registered-token')
+  const webAccount = createPage(null, {
+    bound: false, choice_token: 'web-choice', phone_hint: '尾号 5678', registration_available: false,
+  })
+  await webAccount.page.refreshWechatSession()
+  await webAccount.page.handleWechatLogin({ detail: { code: 'phone-code' } })
+  assert.equal(webAccount.page.data.registrationAvailable, false)
+  webAccount.page.goWechatBind()
+  webAccount.page.setData({ identifier: 'seller@example.com', password: 'password123' })
+  await webAccount.page.handleBind()
+  assert.equal(webAccount.requests[1].binding, 'web-choice')
+  assert.equal(webAccount.requests[1].identifier, 'seller@example.com')
+  assert.equal(webAccount.getSaved().token, 'bound-token')
   const denied = createPage({ token: 'bound-token', user_id: 1, role: 'seller' })
   await denied.page.refreshWechatSession()
   await denied.page.handleWechatLogin({ detail: { errMsg: 'getPhoneNumber:fail user deny' } })
@@ -94,7 +122,7 @@ async function main() {
   await alreadyBound.page.refreshWechatSession()
   await alreadyBound.page.handleWechatLogin({ detail: { code: 'phone-code' } })
   assert.equal(alreadyBound.page.data.mode, 'accountLogin')
-  console.log('PASS: bound and new logins authorize a phone; denial cannot bypass authorization')
+  console.log('PASS: first login requires explicit registration/binding; denial cannot bypass authorization')
 }
 
 main().catch((error) => {

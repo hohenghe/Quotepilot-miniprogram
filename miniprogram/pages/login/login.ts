@@ -4,6 +4,7 @@ import {
   wechatLogin,
   prepareWechatSession,
   wechatBind,
+  completeWechatRegistration,
   getWechatPhone,
   login,
   register,
@@ -95,6 +96,9 @@ Page({
     mode: 'home' as Mode,
     loading: false,
     wechatBoundReady: false,
+    choiceToken: '',
+    phoneHint: '',
+    registrationAvailable: false,
     error: '',
     registeredMessage: '',
     registeredEmail: '',
@@ -129,7 +133,7 @@ Page({
     pauseVisitorTimer()
     if (getToken()) {
       wx.reLaunch({ url: '/pages/dashboard/dashboard' })
-    } else {
+    } else if (!this.data.choiceToken) {
       void this.refreshWechatSession()
     }
   },
@@ -183,8 +187,15 @@ Page({
         } else {
           wx.reLaunch({ url: '/pages/dashboard/dashboard' })
         }
+      } else if (result.choice_token) {
+        this.setData({
+          mode: 'wechatUnbound',
+          choiceToken: result.choice_token,
+          phoneHint: result.phone_hint || '',
+          registrationAvailable: result.registration_available === true,
+        })
       } else {
-        this.setData({ error: '快捷登录注册失败，请稍后重试' })
+        this.setData({ error: '未能确认微信登录状态，请重新授权' })
       }
     } catch (e) {
       const message = (e as Error).message || '登录失败'
@@ -195,7 +206,7 @@ Page({
       })
     } finally {
       this.setData({ loading: false })
-      if (!getToken()) void this.refreshWechatSession()
+      if (!getToken() && !this.data.choiceToken) void this.refreshWechatSession()
     }
   },
 
@@ -212,11 +223,31 @@ Page({
   },
 
   goWechatUnbound() {
+    if (!this.data.choiceToken) { this.goHome(); return }
     this.setData({ mode: 'wechatUnbound', error: '' })
   },
 
   goWechatBind() {
+    if (!this.data.choiceToken) { this.goHome(); return }
     this.setData({ mode: 'bind', error: '' })
+  },
+
+  async handleChoiceRegister() {
+    const choiceToken = this.data.choiceToken
+    if (!choiceToken || !this.data.registrationAvailable || this.data.loading) return
+    this.setData({ loading: true, error: '' })
+    try {
+      const result = await completeWechatRegistration(choiceToken)
+      if (!result.token) throw new Error('注册失败，请重试')
+      saveAuth(result.token, toAuthUser(result))
+      wx.reLaunch({ url: '/pages/dashboard/dashboard' })
+    } catch (e) {
+      const message = (e as Error).message || '注册失败，请重试'
+      if (message.includes('手机号授权已过期')) this.goHome()
+      this.setData({ error: message })
+    } finally {
+      this.setData({ loading: false })
+    }
   },
 
   goHome() {
@@ -227,6 +258,9 @@ Page({
     this.setData({
       mode: 'home',
       error: '',
+      choiceToken: '',
+      phoneHint: '',
+      registrationAvailable: false,
       registeredEmail: '',
       resendMessage: '',
       resendCooldown: 0,
@@ -320,20 +354,20 @@ Page({
     }
   },
 
-  async handleBind(event: PhoneAuthorizationEvent) {
+  async handleBind() {
     const { identifier, password } = this.data
     if (!identifier.trim() || !password) {
       this.setData({ error: '请输入账号和密码' })
       return
     }
     if (this.data.loading) return
+    if (!this.data.choiceToken) {
+      this.setData({ error: '手机号授权已过期，请重新授权' })
+      return
+    }
     this.setData({ loading: true, error: '' })
     try {
-      const phoneCode = getAuthorizedPhoneCode(event)
-      // The code used to identify an unbound WeChat account was already
-      // consumed. Binding therefore requests a new official login code.
-      const code = await getWechatLoginCode()
-      const result = await wechatBind(code, phoneCode, identifier.trim(), password)
+      const result = await wechatBind(this.data.choiceToken, identifier.trim(), password)
       if (result.bound && result.token) {
         saveAuth(result.token, toAuthUser(result))
         wx.reLaunch({ url: '/pages/dashboard/dashboard' })
@@ -341,7 +375,9 @@ Page({
         this.setData({ error: '绑定失败，请重试' })
       }
     } catch (e) {
-      this.setData({ error: (e as Error).message || '绑定失败' })
+      const message = (e as Error).message || '绑定失败'
+      if (message.includes('手机号授权已过期')) this.goHome()
+      this.setData({ error: message })
     } finally {
       this.setData({ loading: false })
     }

@@ -18,6 +18,9 @@ export interface AuthResult {
 export interface WechatAuthResult extends AuthResult {
   bound: boolean
   phone_binding_warning?: string | null
+  choice_token?: string | null
+  phone_hint?: string | null
+  registration_available?: boolean | null
 }
 
 export interface RegisterPayload {
@@ -55,10 +58,17 @@ export function wechatLogin(credentials: { code: string } | { session_token: str
   })
 }
 
-export function wechatBind(code: string, phoneCode: string, identifier: string, password: string): Promise<WechatAuthResult> {
+export function completeWechatRegistration(choiceToken: string): Promise<WechatAuthResult> {
+  return request<WechatAuthResult>('/api/auth/wechat-choice-register', {
+    method: 'POST',
+    data: { choice_token: choiceToken },
+  })
+}
+
+export function wechatBind(choiceToken: string, identifier: string, password: string): Promise<WechatAuthResult> {
   return request<WechatAuthResult>('/api/auth/wechat-bind', {
     method: 'POST',
-    data: { code, phone_code: phoneCode, identifier, password },
+    data: { choice_token: choiceToken, identifier, password },
   })
 }
 
